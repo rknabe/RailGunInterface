@@ -1,8 +1,8 @@
 #include <Joystick.h>
 #include "InputDebounce.h"
-#include <arduino-timer.h>
 
-#define BUTTON_DEBOUNCE_DELAY 50  //[ms]
+#define BUTTON_DEBOUNCE_DELAY 45  //[ms]
+#define RECOIL_RELEASE_MS 50      //[ms]
 
 const uint8_t buttonCount = 7;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -10,8 +10,6 @@ Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCo
                      false, false, false,
                      false, false, false,
                      false, false);
-
-auto timer = timer_create_default();  // create a timer with default settings
 
 static InputDebounce btnTrigger;  // not enabled yet, setup has to be called first, see setup() below
 
@@ -39,9 +37,9 @@ const int buttonPins[buttonCount] = {
   BTN_K_PIN
 };
 
-unsigned long HOLD_MS = 1100;
-unsigned long RECOIL_MS = 50;
-bool recoilEngaged = false;
+unsigned long HOLD_MS = 1000;
+unsigned long RECOIL_REPEAT_MS = 100;
+unsigned long lastHoldTimeMs = 0;
 int lastXAxisValue = -1;
 int lastYAxisValue = -1;
 
@@ -54,78 +52,37 @@ int getButtonNumFromPin(int pin) {
   return 0;
 }
 
-bool releaseRecoil(void *) {
-  if (recoilEngaged) {
-    digitalWrite(RECOIL_RELAY_PIN, LOW);
-    controller.setButton(BTN_TRIGGER, LOW);
-    recoilEngaged = false;
-    Serial.println("recoil released ");
-  }
-  return false;
-}
-
 void engageRecoil() {
-  if (!recoilEngaged) {
-    digitalWrite(RECOIL_RELAY_PIN, HIGH);
-    recoilEngaged = true;
-    Serial.println("recoil engaged ");
-    timer.in(RECOIL_MS, releaseRecoil);
-  }
+  digitalWrite(RECOIL_RELAY_PIN, HIGH);
+  delay(RECOIL_RELEASE_MS);
+  digitalWrite(RECOIL_RELAY_PIN, LOW);
 }
 
 void pressedCallback(uint8_t pinIn) {
-  // handle pressed state
-  Serial.print("HIGH pin: ");
-  Serial.println(pinIn);
-
-  Serial.print("btn #: ");
-  Serial.println(getButtonNumFromPin(pinIn));
   controller.setButton(getButtonNumFromPin(pinIn), HIGH);
 
-  if (pinIn == BTN_TRIGGER && !recoilEngaged) {
+  if (pinIn == BTN_TRIGGER) {
     engageRecoil();
-    //delay(50);
-    //digitalWrite(RECOIL_RELAY_PIN, LOW);
   }
 }
 
 void releasedCallback(uint8_t pinIn) {
-  // handle released state
-  Serial.print("LOW (pin: ");
-  Serial.print(pinIn);
-  Serial.println(")");
-
-  Serial.print("btn #: ");
-  Serial.println(getButtonNumFromPin(pinIn));
-
   controller.setButton(getButtonNumFromPin(pinIn), LOW);
+  lastHoldTimeMs = 0;
 }
 
 void pressedDurationCallback(uint8_t pinIn, unsigned long duration) {
-  // handle still pressed state
-  /*Serial.print("HIGH (pin: ");
-  Serial.print(pinIn);
-  Serial.print(") still pressed, duration ");
-  Serial.print(duration);
-  Serial.println("ms");*/
-
-  if (pinIn == BTN_TRIGGER && duration > HOLD_MS && !recoilEngaged) {
-    Serial.println("Hold trigger");
-    controller.setButton(getButtonNumFromPin(pinIn), HIGH);
-    engageRecoil();
-    //delay(100);
-    // controller.setButton(getButtonNumFromPin(pinIn), LOW);
-    //digitalWrite(RECOIL_RELAY_PIN, LOW);
+  if (pinIn == BTN_TRIGGER && duration > HOLD_MS) {
+    if (millis() - lastHoldTimeMs > RECOIL_REPEAT_MS) {
+      controller.setButton(getButtonNumFromPin(pinIn), HIGH);
+      engageRecoil();
+      controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
+      lastHoldTimeMs = millis();
+    }
   }
 }
 
 void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
-  // handle released state
-  /*Serial.print("LOW (pin: ");
-  Serial.print(pinIn);
-  Serial.print("), duration ");
-  Serial.print(duration);
-  Serial.println("ms");*/
 }
 
 void setup() {
@@ -146,10 +103,7 @@ void setup() {
 }
 
 void loop() {
-  bool sendUpdate = false;
-  //digitalWrite(RECOIL_RELAY_PIN, LOW);
-  timer.tick();
-
+  //bool sendUpdate = false;
   unsigned long now = millis();
   btnTrigger.process(now);
 
@@ -157,20 +111,20 @@ void loop() {
   if (currentXAxisValue != lastXAxisValue) {
     controller.setXAxis(currentXAxisValue);
     lastXAxisValue = currentXAxisValue;
-    sendUpdate = true;
+    //sendUpdate = true;
   }
 
   const int currentYAxisValue = analogRead(AXIS_Y_PIN);
   if (currentYAxisValue != lastYAxisValue) {
     controller.setYAxis(currentYAxisValue);
     lastYAxisValue = currentYAxisValue;
-    sendUpdate = true;
+    //sendUpdate = true;
   }
 
-  if (sendUpdate) {
-    controller.sendState();
-  }
+  //if (sendUpdate) {
+  //  controller.sendState();
+  //}
 
-  delay(10);
-  //digitalWrite(RECOIL_RELAY_PIN, LOW);
+  //failsafe to release coil
+  digitalWrite(RECOIL_RELAY_PIN, LOW);
 }
