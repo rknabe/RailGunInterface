@@ -1,20 +1,21 @@
-#include <Joystick.h>
+#include "RailGun.h"
 #include "InputDebounce.h"
 #include <arduino-timer.h>
 
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
 
 const uint8_t buttonCount = 7;
-Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
-                     0, true, true, false,
-                     false, false, false,
-                     false, false, false,
-                     false, false);
+RailGun controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
+                      0, true, true, false,
+                      false, false, false,
+                      false, false, false,
+                      false, false);
 
 auto timer = timer_create_default();  // create a timer with default settings
 
 static InputDebounce btnTrigger;  // not enabled yet, setup has to be called first, see setup() below
 
+const int LITE_PIN = 0;
 const int BTN_TRIGGER = 2;
 const int BTN_LEFT = 3;
 const int BTN_BOTTOM = 4;
