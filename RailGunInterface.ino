@@ -1,19 +1,22 @@
-#include "RailGun.h"
+#include "Joystick.h"
 #include "InputDebounce.h"
 #include <arduino-timer.h>
 
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
+#define SERIAL_BAUDRATE 9600
 
 const uint8_t buttonCount = 7;
-RailGun controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
-                      0, true, true, false,
-                      false, false, false,
-                      false, false, false,
-                      false, false);
+Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
+                     0, true, true, false,
+                     false, false, false,
+                     false, false, false,
+                     false, false);
 
 auto timer = timer_create_default();  // create a timer with default settings
 
-static InputDebounce btnTrigger;  // not enabled yet, setup has to be called first, see setup() below
+static InputDebounce btnTrigger;
+static InputDebounce btnLeft;
+static InputDebounce btnBottom;
 
 const int LITE_PIN = 0;
 const int BTN_TRIGGER = 2;
@@ -27,8 +30,6 @@ const int RECOIL_RELAY_PIN = 9;
 const int LIGHT_RELAY_PIN = 10;
 const int AXIS_X_PIN = A0;
 const int AXIS_Y_PIN = A1;
-
-#define SERIAL_BAUDRATE 9600
 
 const int buttonPins[buttonCount] = {
   BTN_TRIGGER,
@@ -114,12 +115,33 @@ void setup() {
   btnTrigger.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
   btnTrigger.setup(BTN_TRIGGER, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
 
+  btnLeft.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
+  btnLeft.setup(BTN_LEFT, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
+
+  btnBottom.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
+  btnBottom.setup(BTN_BOTTOM, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
+
   pinMode(RECOIL_RELAY_PIN, OUTPUT);
   digitalWrite(RECOIL_RELAY_PIN, LOW);
 
   pinMode(LIGHT_RELAY_PIN, OUTPUT);
   digitalWrite(LIGHT_RELAY_PIN, LOW);
+
+  cli();
+  TCCR3A = 0;  //set TCCR1A 0
+  TCCR3B = 0;  //set TCCR1B 0
+  TCNT3 = 0;   //counter init
+  OCR3A = 399;
+  TCCR3B |= (1 << WGM32);  //open CTC mode
+  TCCR3B |= (1 << CS31);   //set CS11 1(8-fold Prescaler)
+  TIMSK3 |= (1 << OCIE3A);
+  sei();
 }
+
+ISR(TIMER3_COMPA_vect) {
+  controller.getUSBPID();
+}
+
 
 void loop() {
   sendUpdate = false;
@@ -127,16 +149,18 @@ void loop() {
 
   unsigned long now = millis();
   btnTrigger.process(now);
+  btnLeft.process(now);
+  btnBottom.process(now);
 
   const int currentXAxisValue = analogRead(AXIS_X_PIN);
-  if (currentXAxisValue != lastXAxisValue) {
+  if (abs(currentXAxisValue - lastXAxisValue) > 2) {
     controller.setXAxis(currentXAxisValue);
     lastXAxisValue = currentXAxisValue;
     sendUpdate = true;
   }
 
   const int currentYAxisValue = analogRead(AXIS_Y_PIN);
-  if (currentYAxisValue != lastYAxisValue) {
+  if (abs(currentYAxisValue - lastYAxisValue) > 2) {
     controller.setYAxis(currentYAxisValue);
     lastYAxisValue = currentYAxisValue;
     sendUpdate = true;
