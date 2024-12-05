@@ -167,7 +167,7 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
     if (report_id == 5) {
       USB_FFBReport_CreateNewEffect_Feature_Data_t ans;
       USB_RecvControl(&ans, sizeof(USB_FFBReport_CreateNewEffect_Feature_Data_t));
-      pidReportHandler.CreateNewEffect(&ans);
+      //pidReportHandler.CreateNewEffect(&ans);
     }
     return true;
   }

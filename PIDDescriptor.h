@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _FFB_H
-#define _FFB_H
+#ifndef _PID_DESC_H
+#define _PID_DESC_H
 
 static const uint8_t pidReportDescriptor[] PROGMEM = {
   // PID State Report
@@ -637,4 +637,4 @@ static const uint8_t pidReportDescriptor[] PROGMEM = {
 
 int pidReportDescriptorSize = sizeof(pidReportDescriptor) / sizeof(pidReportDescriptor[0]);
 
-#endif  // !
+#endif

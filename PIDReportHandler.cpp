@@ -6,9 +6,10 @@ PIDReportHandler::PIDReportHandler() {
 }
 
 PIDReportHandler::~PIDReportHandler() {
-  FreeAllEffects();
+  //FreeAllEffects();
 }
 
+/*
 uint8_t PIDReportHandler::GetNextFreeEffect(void) {
   if (nextEID == MAX_EFFECTS)
     return 0;
@@ -176,13 +177,13 @@ void PIDReportHandler::CreateNewEffect(USB_FFBReport_CreateNewEffect_Feature_Dat
     effect->state = MEFFECTSTATE_ALLOCATED;
     pidBlockLoad.ramPoolAvailable -= SIZE_EFFECT;
   }
-}
+}*/
 
 void PIDReportHandler::UppackUsbData(uint8_t* data) {
   uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
   switch (data[0])             // reportID
   {
-    case 1:
+    /*case 1:
       SetEffect((USB_FFBReport_SetEffect_Output_Data_t*)data);
       break;
     case 2:
@@ -222,7 +223,7 @@ void PIDReportHandler::UppackUsbData(uint8_t* data) {
       break;
     case 14:
       SetCustomForce((USB_FFBReport_SetCustomForce_Output_Data_t*)data);
-      break;
+      break;*/
     case 15:
       usbCommand = *((USB_GUI_Command*)data);
       break;
@@ -231,6 +232,7 @@ void PIDReportHandler::UppackUsbData(uint8_t* data) {
   }
 }
 
+/*
 uint8_t* PIDReportHandler::getPIDPool() {
   FreeAllEffects();
 
@@ -239,7 +241,7 @@ uint8_t* PIDReportHandler::getPIDPool() {
   pidPoolReport.maxSimultaneousEffects = MAX_EFFECTS;
   pidPoolReport.memoryManagement = 3;
   return (uint8_t*)&pidPoolReport;
-}
+}*/
 
 uint8_t* PIDReportHandler::getPIDBlockLoad() {
   return (uint8_t*)&pidBlockLoad;

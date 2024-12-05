@@ -21,15 +21,16 @@ public:
   volatile USB_FFBReport_DeviceGain_Output_Data_t deviceGain;
 
   //ffb state structures
+  /*
   uint8_t GetNextFreeEffect(void);
   void StartEffect(uint8_t id);
   void StopEffect(uint8_t id);
   void StopAllEffects(void);
   void FreeEffect(uint8_t id);
-  void FreeAllEffects(void);
+  void FreeAllEffects(void);*/
 
   //handle output pid report
-  void EffectOperation(USB_FFBReport_EffectOperation_Output_Data_t* data);
+  /*void EffectOperation(USB_FFBReport_EffectOperation_Output_Data_t* data);
   void BlockFree(USB_FFBReport_BlockFree_Output_Data_t* data);
   void DeviceControl(USB_FFBReport_DeviceControl_Output_Data_t* data);
   void DeviceGain(USB_FFBReport_DeviceGain_Output_Data_t* data);
@@ -41,10 +42,10 @@ public:
   void SetCondition(USB_FFBReport_SetCondition_Output_Data_t* data, volatile TEffectState* effect);
   void SetPeriodic(USB_FFBReport_SetPeriodic_Output_Data_t* data, volatile TEffectState* effect);
   void SetConstantForce(USB_FFBReport_SetConstantForce_Output_Data_t* data, volatile TEffectState* effect);
-  void SetRampForce(USB_FFBReport_SetRampForce_Output_Data_t* data, volatile TEffectState* effect);
+  void SetRampForce(USB_FFBReport_SetRampForce_Output_Data_t* data, volatile TEffectState* effect);*/
 
   // Handle incoming data from USB
-  void CreateNewEffect(USB_FFBReport_CreateNewEffect_Feature_Data_t* inData);
+  //void CreateNewEffect(USB_FFBReport_CreateNewEffect_Feature_Data_t* inData);
   void UppackUsbData(uint8_t* data);
   uint8_t* getPIDPool();
   uint8_t* getPIDBlockLoad();

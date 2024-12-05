@@ -35,7 +35,7 @@
 #define FIRMWARE_VERSION "1.0.0"
 #define FIRMWARE_TYPE "RKADE-GUN"
 
-////refer to FFBDescriptor.h
+////refer to PIDDescriptor.h
 
 ///Device-->Host
 

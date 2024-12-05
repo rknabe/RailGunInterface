@@ -61,6 +61,7 @@
 #define FORCE_FEEDBACK_MAXGAIN 100
 //#define DEG_TO_RAD              ((float)((float)3.14159265359 / 180.0))
 
+/*
 struct Gains {
   uint8_t totalGain = FORCE_FEEDBACK_MAXGAIN;
   uint8_t constantGain = FORCE_FEEDBACK_MAXGAIN;
@@ -89,7 +90,7 @@ struct EffectParams {
 
   int32_t frictionMaxPositionChange = 0;
   int32_t frictionPositionChange = 0;
-};
+};*/
 
 class Joystick_ {
 private:
@@ -143,10 +144,10 @@ private:
   uint8_t _hidReportSize;
 
   //force feedback gain
-  Gains* m_gains;
+  //Gains* m_gains;
 
   //force feedback effect params
-  EffectParams* m_effect_params;
+  //EffectParams* m_effect_params;
 
   GUI_Report USB_GUI_Report;
 
@@ -154,7 +155,7 @@ private:
   bool is_calculating_force = true;
 
   ///force calculate funtion
-  float NormalizeRange(int32_t x, int32_t maxValue);
+  /*float NormalizeRange(int32_t x, int32_t maxValue);
   int32_t ApplyEnvelope(volatile TEffectState& effect, int32_t value);
   int32_t ApplyGain(int16_t value, uint8_t gain);
   int32_t ConstantForceCalculator(volatile TEffectState& effect);
@@ -166,7 +167,7 @@ private:
   int32_t SawtoothUpForceCalculator(volatile TEffectState& effect);
   int32_t ConditionForceCalculator(volatile TEffectState& effect, float metric, uint8_t axis);
   void forceCalculator(int32_t* forces);
-  int32_t getEffectForce(volatile TEffectState& effect, Gains _gains, EffectParams _effect_params, uint8_t axis);
+  int32_t getEffectForce(volatile TEffectState& effect, Gains _gains, EffectParams _effect_params, uint8_t axis);*/
 protected:
   int buildAndSet16BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]);
   int buildAndSetAxisValue(bool includeAxis, int16_t axisValue, int16_t axisMinimum, int16_t axisMaximum, uint8_t dataLocation[]);
@@ -262,7 +263,9 @@ public:
   void sendState();
   // get USB PID data
   void getUSBPID();
-  //force feedback Interfaces
+  
+    //force feedback Interfaces
+  /*
   void getForce(int32_t* forces);
   //set gain functions
   int8_t setGains(Gains* _gains) {
@@ -280,7 +283,7 @@ public:
       return 0;
     }
     return -1;
-  };
+  };*/
 
   void processUsbCmd();
 };
