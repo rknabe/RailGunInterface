@@ -178,7 +178,7 @@ void PIDReportHandler::CreateNewEffect(USB_FFBReport_CreateNewEffect_Feature_Dat
   }
 }
 
-void PIDReportHandler::UppackUsbData(uint8_t* data, uint16_t len) {
+void PIDReportHandler::UppackUsbData(uint8_t* data) {
   uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
   switch (data[0])             // reportID
   {

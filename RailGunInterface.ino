@@ -3,7 +3,7 @@
 #include <arduino-timer.h>
 
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
-#define SERIAL_BAUDRATE 9600
+#define SERIAL_BAUDRATE 115200
 
 const uint8_t buttonCount = 7;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -165,8 +165,6 @@ void loop() {
     lastYAxisValue = currentYAxisValue;
     sendUpdate = true;
   }
-
-  //controller.processUsbCmd();
 
   if (sendUpdate) {
     controller.sendState();

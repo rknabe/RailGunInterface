@@ -111,9 +111,9 @@ int DynamicHID_::RecvData(byte* data) {
 
 void DynamicHID_::RecvfromUsb() {
   if (usb_Available() > 0) {
-    uint16_t len = USB_Recv(PID_ENDPOINT_OUT, &out_ffbdata, 64);
+    int len = USB_Recv(PID_ENDPOINT_OUT, &out_ffbdata, 64);
     if (len >= 0) {
-      pidReportHandler.UppackUsbData(out_ffbdata, len);
+      pidReportHandler.UppackUsbData(out_ffbdata);
     }
   }
 }
@@ -169,7 +169,7 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
       USB_RecvControl(&ans, sizeof(USB_FFBReport_CreateNewEffect_Feature_Data_t));
       pidReportHandler.CreateNewEffect(&ans);
     }
-    return (true);
+    return true;
   }
   if (setup.wValueH == DYNAMIC_HID_REPORT_TYPE_INPUT) {
     /*if(length == sizeof(JoystickReportData))
@@ -178,6 +178,7 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
 		  return true;
 		  }*/
   }
+  return false;
 }
 
 bool DynamicHID_::setup(USBSetup& setup) {

@@ -949,7 +949,6 @@ void Joystick_::processUsbCmd() {
     switch (usbCmd->command) {
       //get data
       case 1:  //return string model+version
-        //Serial.println("Version report");
         strcpy_P(((GUI_Report_Version *)data)->id, PSTR(FIRMWARE_TYPE));
         strcpy_P(((GUI_Report_Version *)data)->ver, PSTR(FIRMWARE_VERSION));
         sendState();
@@ -1117,8 +1116,6 @@ void Joystick_::processUsbCmd() {
     }
 
     if (USB_GUI_Report.command == 1) {
-      //Serial.print("sending output response: ");
-      //Serial.println(sizeof(USB_GUI_Report));
       DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
       USB_GUI_Report.command = 0;
     }
