@@ -932,12 +932,14 @@ void Joystick_::sendState() {
 */
 void Joystick_::processUsbCmd() {
   USB_GUI_Command *usbCmd = &DynamicHID().pidReportHandler.usbCommand;
-
-  //clear output report
-  memset(&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
-
-  void *data = USB_GUI_Report.data;
   if (usbCmd->command) {
+    Serial.print("cmd:");
+    Serial.println(usbCmd->command);
+
+    //clear output report
+    memset(&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
+    void *data = USB_GUI_Report.data;
+
     //return data only for read commands
     if (usbCmd->command < 10) {
       USB_GUI_Report.command = usbCmd->command;
@@ -947,9 +949,10 @@ void Joystick_::processUsbCmd() {
     switch (usbCmd->command) {
       //get data
       case 1:  //return string model+version
-        Serial.println("Version report");
+        //Serial.println("Version report");
         strcpy_P(((GUI_Report_Version *)data)->id, PSTR(FIRMWARE_TYPE));
         strcpy_P(((GUI_Report_Version *)data)->ver, PSTR(FIRMWARE_VERSION));
+        sendState();
         break; /*
       case 2:  //return steering axis data
 #if STEER_TYPE == ST_ANALOG
@@ -1112,13 +1115,13 @@ void Joystick_::processUsbCmd() {
         wheel.axisWheel->invertRotation = usbCmd->arg[0];
         break;*/
     }
-  }
 
-  if (USB_GUI_Report.command == 1) {
-    Serial.print("sending output response: ");
-    Serial.println(sizeof(USB_GUI_Report));
-    DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
-    USB_GUI_Report.command = 0;
+    if (USB_GUI_Report.command == 1) {
+      //Serial.print("sending output response: ");
+      //Serial.println(sizeof(USB_GUI_Report));
+      DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
+      USB_GUI_Report.command = 0;
+    }
   }
 
   usbCmd->command = 0;
