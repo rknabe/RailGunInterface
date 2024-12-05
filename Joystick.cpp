@@ -434,10 +434,10 @@ Joystick_::Joystick_(
   tempHidReportDescriptor[hidReportDescriptorSize++] = 0xc0;
 
   // Create a copy of the HID Report Descriptor template that is just the right size
-  uint8_t* customHidReportDescriptor = new uint8_t[hidReportDescriptorSize];
+  uint8_t *customHidReportDescriptor = new uint8_t[hidReportDescriptorSize];
   memcpy(customHidReportDescriptor, tempHidReportDescriptor, hidReportDescriptorSize);
   // Register HID Report Description
-  DynamicHIDSubDescriptor* node = new DynamicHIDSubDescriptor(customHidReportDescriptor, hidReportDescriptorSize, pidReportDescriptor, pidReportDescriptorSize, false);
+  DynamicHIDSubDescriptor *node = new DynamicHIDSubDescriptor(customHidReportDescriptor, hidReportDescriptorSize, pidReportDescriptor, pidReportDescriptorSize, false);
 
   DynamicHID().AppendDescriptor(node);
 
@@ -483,13 +483,14 @@ void Joystick_::begin(bool initAutoSendState) {
 
 void Joystick_::getUSBPID() {
   DynamicHID().RecvfromUsb();
+  processUsbCmd();
 }
 
-void Joystick_::getForce(int32_t* forces) {
+void Joystick_::getForce(int32_t *forces) {
   forceCalculator(forces);
 }
 
-int32_t Joystick_::getEffectForce(volatile TEffectState& effect, Gains _gains, EffectParams _effect_params, uint8_t axis) {
+int32_t Joystick_::getEffectForce(volatile TEffectState &effect, Gains _gains, EffectParams _effect_params, uint8_t axis) {
   uint8_t direction;
   uint8_t condition;
   bool useForceDirectionForConditionEffect = (effect.enableAxis == DIRECTION_ENABLE && effect.conditionBlocksCount == 1);
@@ -567,11 +568,11 @@ int32_t Joystick_::getEffectForce(volatile TEffectState& effect, Gains _gains, E
 }
 
 
-void Joystick_::forceCalculator(int32_t* forces) {
+void Joystick_::forceCalculator(int32_t *forces) {
   forces[0] = 0;
   forces[1] = 0;
   for (int id = 0; id < MAX_EFFECTS; id++) {
-    volatile TEffectState& effect = DynamicHID().pidReportHandler.g_EffectStates[id];
+    volatile TEffectState &effect = DynamicHID().pidReportHandler.g_EffectStates[id];
     if ((effect.state == MEFFECTSTATE_PLAYING) && ((effect.elapsedTime <= effect.duration) || (effect.duration == USB_DURATION_INFINITE)) && !DynamicHID().pidReportHandler.devicePaused) {
       forces[0] += (int32_t)(getEffectForce(effect, m_gains[0], m_effect_params[0], 0));
       forces[1] += (int32_t)(getEffectForce(effect, m_gains[1], m_effect_params[1], 1));
@@ -583,16 +584,16 @@ void Joystick_::forceCalculator(int32_t* forces) {
   forces[1] = map(forces[1], -10000, 10000, -250, 250);
 }
 
-int32_t Joystick_::ConstantForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::ConstantForceCalculator(volatile TEffectState &effect) {
   return ApplyEnvelope(effect, (int32_t)effect.magnitude);
 }
 
-int32_t Joystick_::RampForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::RampForceCalculator(volatile TEffectState &effect) {
   int32_t tempforce = (int32_t)(effect.startMagnitude + effect.elapsedTime * 1.0 * (effect.endMagnitude - effect.startMagnitude) / effect.duration);
   return ApplyEnvelope(effect, tempforce);
 }
 
-int32_t Joystick_::SquareForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::SquareForceCalculator(volatile TEffectState &effect) {
   int16_t offset = effect.offset * 2;
   int16_t magnitude = effect.magnitude;
   uint16_t phase = effect.phase;
@@ -610,7 +611,7 @@ int32_t Joystick_::SquareForceCalculator(volatile TEffectState& effect) {
   return ApplyEnvelope(effect, tempforce);
 }
 
-int32_t Joystick_::SinForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::SinForceCalculator(volatile TEffectState &effect) {
   int16_t offset = effect.offset * 2;
   int16_t magnitude = effect.magnitude;
   uint16_t phase = effect.phase;
@@ -625,7 +626,7 @@ int32_t Joystick_::SinForceCalculator(volatile TEffectState& effect) {
   return ApplyEnvelope(effect, tempforce);
 }
 
-int32_t Joystick_::TriangleForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::TriangleForceCalculator(volatile TEffectState &effect) {
   int16_t offset = effect.offset * 2;
   int16_t magnitude = effect.magnitude;
   uint16_t elapsedTime = effect.elapsedTime;
@@ -646,7 +647,7 @@ int32_t Joystick_::TriangleForceCalculator(volatile TEffectState& effect) {
   return ApplyEnvelope(effect, tempforce);
 }
 
-int32_t Joystick_::SawtoothDownForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::SawtoothDownForceCalculator(volatile TEffectState &effect) {
   int16_t offset = effect.offset * 2;
   int16_t magnitude = effect.magnitude;
   uint16_t elapsedTime = effect.elapsedTime;
@@ -666,7 +667,7 @@ int32_t Joystick_::SawtoothDownForceCalculator(volatile TEffectState& effect) {
   return ApplyEnvelope(effect, tempforce);
 }
 
-int32_t Joystick_::SawtoothUpForceCalculator(volatile TEffectState& effect) {
+int32_t Joystick_::SawtoothUpForceCalculator(volatile TEffectState &effect) {
   int16_t offset = effect.offset * 2;
   int16_t magnitude = effect.magnitude;
   uint16_t elapsedTime = effect.elapsedTime;
@@ -686,7 +687,7 @@ int32_t Joystick_::SawtoothUpForceCalculator(volatile TEffectState& effect) {
   return ApplyEnvelope(effect, tempforce);
 }
 
-int32_t Joystick_::ConditionForceCalculator(volatile TEffectState& effect, float metric, uint8_t axis) {
+int32_t Joystick_::ConditionForceCalculator(volatile TEffectState &effect, float metric, uint8_t axis) {
   float deadBand;
   float cpOffset;
   float positiveCoefficient;
@@ -735,7 +736,7 @@ inline int32_t Joystick_::ApplyGain(int16_t value, uint8_t gain) {
   return ((value_32 * gain) / 255);
 }
 
-inline int32_t Joystick_::ApplyEnvelope(volatile TEffectState& effect, int32_t value) {
+inline int32_t Joystick_::ApplyEnvelope(volatile TEffectState &effect, int32_t value) {
   int32_t magnitude = ApplyGain(effect.magnitude, effect.gain);
   int32_t attackLevel = ApplyGain(effect.attackLevel, effect.gain);
   int32_t fadeLevel = ApplyGain(effect.fadeLevel, effect.gain);
@@ -924,6 +925,203 @@ void Joystick_::sendState() {
   index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_STEERING, _steering, _steeringMinimum, _steeringMaximum, &(data[index]));
 
   DynamicHID().SendReport(_hidReportId, data, _hidReportSize);
+}
+
+/*
+  communicating with GUI:
+*/
+void Joystick_::processUsbCmd() {
+  USB_GUI_Command *usbCmd = &DynamicHID().pidReportHandler.usbCommand;
+
+  //clear output report
+  memset(&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
+
+  void *data = USB_GUI_Report.data;
+  if (usbCmd->command) {
+    //return data only for read commands
+    if (usbCmd->command < 10) {
+      USB_GUI_Report.command = usbCmd->command;
+      USB_GUI_Report.arg = usbCmd->arg[0];
+    }
+
+    switch (usbCmd->command) {
+      //get data
+      case 1:  //return string model+version
+        Serial.println("Version report");
+        strcpy_P(((GUI_Report_Version *)data)->id, PSTR(FIRMWARE_TYPE));
+        strcpy_P(((GUI_Report_Version *)data)->ver, PSTR(FIRMWARE_VERSION));
+        break; /*
+      case 2:  //return steering axis data
+#if STEER_TYPE == ST_ANALOG
+        ((GUI_Report_SteerAxis *)data)->rawValue = wheel.axisWheel->rawValue;
+        ((GUI_Report_SteerAxis *)data)->value = wheel.axisWheel->value;
+#else
+        ((GUI_Report_SteerAxis *)data)->rawValue = wheel.axisWheel->rawValue;
+        ((GUI_Report_SteerAxis *)data)->value = wheel.axisWheel->value;
+#endif
+
+        ((GUI_Report_SteerAxis *)data)->range = wheel.axisWheel->range;
+        ((GUI_Report_SteerAxis *)data)->velocity = wheel.axisWheel->velocity;
+        ((GUI_Report_SteerAxis *)data)->acceleration = wheel.axisWheel->acceleration;
+
+        ((GUI_Report_SteerAxis *)data)->axisMin = wheel.axisWheel->axisMin;
+        ((GUI_Report_SteerAxis *)data)->axisMax = wheel.axisWheel->axisMax;
+        ((GUI_Report_SteerAxis *)data)->center = wheel.axisWheel->getCenter();
+        ((GUI_Report_SteerAxis *)data)->deadzone = wheel.axisWheel->getDZ();
+        ((GUI_Report_SteerAxis *)data)->autoLimit = wheel.axisWheel->autoLimit;
+        ((GUI_Report_SteerAxis *)data)->bitTrim = wheel.axisWheel->bitTrim;
+        ((GUI_Report_SteerAxis *)data)->invertRotation = wheel.axisWheel->invertRotation;
+        break;
+      case 3:  //return analog axis data
+        ((GUI_Report_AnalogAxis *)data)->rawValue = wheel.analogAxes[usbCmd->arg[0]]->rawValue;
+        ((GUI_Report_AnalogAxis *)data)->value = wheel.analogAxes[usbCmd->arg[0]]->value;
+        ((GUI_Report_AnalogAxis *)data)->axisMin = wheel.analogAxes[usbCmd->arg[0]]->axisMin;
+        ((GUI_Report_AnalogAxis *)data)->axisMax = wheel.analogAxes[usbCmd->arg[0]]->axisMax;
+        ((GUI_Report_AnalogAxis *)data)->center = wheel.analogAxes[usbCmd->arg[0]]->getCenter();
+        ((GUI_Report_AnalogAxis *)data)->deadzone = wheel.analogAxes[usbCmd->arg[0]]->getDZ();
+        ((GUI_Report_AnalogAxis *)data)->autoLimit = wheel.analogAxes[usbCmd->arg[0]]->autoLimit;
+        ((GUI_Report_AnalogAxis *)data)->hasCenter = !wheel.analogAxes[usbCmd->arg[0]]->autoCenter;
+
+        ((GUI_Report_AnalogAxis *)data)->outputDisabled = wheel.analogAxes[usbCmd->arg[0]]->outputDisabled;
+        ((GUI_Report_AnalogAxis *)data)->bitTrim = wheel.analogAxes[usbCmd->arg[0]]->bitTrim;
+        break;
+      case 4:  //return buttons data
+        ((GUI_Report_Buttons *)data)->buttons = wheel.buttons;
+        ((GUI_Report_Buttons *)data)->shiftButton = settings.shiftButton;
+        ((GUI_Report_Buttons *)data)->debounce = settings.debounce;
+        ((GUI_Report_Buttons *)data)->mplexShifter = settings.mplexShifter;
+        break;
+      case 5:  //return gains
+        memcpy(data, settings.gain, sizeof(settings.gain));
+        break;
+      case 6:  //return remaining settings
+        //GUI_Report_Settings* repSettings=(GUI_Report_Settings*)(wheel.USB_GUI_Report.data);
+
+        ((GUI_Report_Settings *)data)->maxvd = round(16384.0 / wheel.ffbEngine.maxVelocityDamperC);
+        ((GUI_Report_Settings *)data)->maxvf = round(16384.0 / wheel.ffbEngine.maxVelocityFrictionC);
+        ((GUI_Report_Settings *)data)->maxacc = round(16384.0 / wheel.ffbEngine.maxAccelerationInertiaC);
+
+        ((GUI_Report_Settings *)data)->minForce = settings.minForce;
+        ((GUI_Report_Settings *)data)->maxForce = settings.maxForce;
+        ((GUI_Report_Settings *)data)->cutForce = settings.cutForce;
+
+        ((GUI_Report_Settings *)data)->ffbBD = motor.bitDepth;
+
+        ((GUI_Report_Settings *)data)->endstopOffset = settings.endstopOffset;
+        ((GUI_Report_Settings *)data)->endstopWidth = settings.endstopWidth;
+        ((GUI_Report_Settings *)data)->constantSpring = settings.constantSpring;
+        ((GUI_Report_Settings *)data)->afcOnStartup = settings.afcOnStartup;
+        break;
+
+      // set
+      case 10:  //set range for steering axis
+        wheel.axisWheel->setRange(usbCmd->arg[0]);
+        break;
+      case 11:  //set limits for analog axis
+        wheel.analogAxes[usbCmd->arg[0]]->setLimits(usbCmd->arg[1], usbCmd->arg[2]);
+        break;
+      case 12:  //set center for analog axis
+        wheel.analogAxes[usbCmd->arg[0]]->setCenter(usbCmd->arg[1]);
+        break;
+      case 13:  //set deadzone for analog axis
+        wheel.analogAxes[usbCmd->arg[0]]->setDZ(usbCmd->arg[1]);
+        break;
+      case 14:  //set autolimits for analog axis
+        wheel.analogAxes[usbCmd->arg[0]]->setAutoLimits(usbCmd->arg[1] > 0);
+        break;
+      case 15:  //set center button
+        settings.shiftButton = usbCmd->arg[0];
+        break;
+      case 16:  //set debounce value
+        settings.debounce = usbCmd->arg[0];
+        break;
+      case 17:  //set gain
+        settings.gain[usbCmd->arg[0]] = usbCmd->arg[1];
+        break;
+      case 18:  //set misc settings
+        switch (usbCmd->arg[0]) {
+          case 0:
+            wheel.ffbEngine.maxVelocityDamperC = 16384.0 / usbCmd->arg[1];
+            break;
+          case 1:
+            wheel.ffbEngine.maxVelocityFrictionC = 16384.0 / usbCmd->arg[1];
+            break;
+          case 2:
+            wheel.ffbEngine.maxAccelerationInertiaC = 16384.0 / usbCmd->arg[1];
+            break;
+          case 3:
+            settings.minForce = usbCmd->arg[1];
+            break;
+          case 4:
+            settings.maxForce = usbCmd->arg[1];
+            break;
+          case 5:
+            settings.cutForce = usbCmd->arg[1];
+            break;
+          case 6:
+            motor.setBitDepth(usbCmd->arg[1]);
+            break;
+          case 7:
+            settings.endstopOffset = usbCmd->arg[1];
+            settings.endstopWidth = usbCmd->arg[2];
+            break;
+          case 8:
+            settings.constantSpring = usbCmd->arg[1];
+            break;
+          case 9:
+            settings.afcOnStartup = usbCmd->arg[1];
+            break;
+          case 10:
+            settings.mplexShifter = usbCmd->arg[1];
+            break;
+        }
+        break;
+      case 19:  //set outputDisabled and bittrim for analog axis
+        wheel.analogAxes[usbCmd->arg[0]]->outputDisabled = (usbCmd->arg[1] > 0);
+        wheel.analogAxes[usbCmd->arg[0]]->bitTrim = usbCmd->arg[2];
+        break;
+      //commands
+      case 20:  //load settings from EEPROM
+        load();
+        break;
+      case 21:  //save settings to EEPROM
+        save();
+        break;
+      case 22:  //load defaults
+        load(true);
+        break;
+      case 23:  //center wheel
+        //center();
+        break;
+      case 24:  //wheel limits
+        wheel.axisWheel->setLimits(usbCmd->arg[0], usbCmd->arg[1]);
+        break;
+      case 25:  //set center for wheel
+        wheel.axisWheel->setCenter(usbCmd->arg[0]);
+        break;
+      case 26:  //set deadzone for wheel
+        wheel.axisWheel->setDZ(usbCmd->arg[0]);
+        break;
+      case 27:  //set autolimits for wheel
+        wheel.axisWheel->setAutoLimits(usbCmd->arg[0] > 0);
+        break;
+      case 28:  //set trim for wheel
+        wheel.axisWheel->bitTrim = usbCmd->arg[0];
+        break;
+      case 29:  //set inversion for wheel
+        wheel.axisWheel->invertRotation = usbCmd->arg[0];
+        break;*/
+    }
+  }
+
+  if (USB_GUI_Report.command == 1) {
+    Serial.print("sending output response: ");
+    Serial.println(sizeof(USB_GUI_Report));
+    DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
+    USB_GUI_Report.command = 0;
+  }
+
+  usbCmd->command = 0;
 }
 
 #endif

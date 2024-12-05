@@ -166,6 +166,8 @@ void loop() {
     sendUpdate = true;
   }
 
+  //controller.processUsbCmd();
+
   if (sendUpdate) {
     controller.sendState();
   }

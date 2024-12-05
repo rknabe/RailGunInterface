@@ -148,6 +148,8 @@ private:
   //force feedback effect params
   EffectParams* m_effect_params;
 
+  GUI_Report USB_GUI_Report;
+
   //lock data
   bool is_calculating_force = true;
 
@@ -279,6 +281,8 @@ public:
     }
     return -1;
   };
+
+  void processUsbCmd();
 };
 
 #endif  // !defined(_USING_DYNAMIC_HID)

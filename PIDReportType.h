@@ -32,7 +32,8 @@
 #define SIZE_EFFECT sizeof(TEffectState)
 #define MEMORY_SIZE (uint16_t)(MAX_EFFECTS * SIZE_EFFECT)
 #define TO_LT_END_16(x) ((x << 8) & 0xFF00) | ((x >> 8) & 0x00FF)
-
+#define FIRMWARE_VERSION "1.0.0"
+#define FIRMWARE_TYPE "RKADE-GUN"
 
 ////refer to FFBDescriptor.h
 
@@ -191,8 +192,25 @@ typedef struct {
   uint16_t positiveSaturation;  // -128..127
   uint16_t negativeSaturation;  // -128..127
   uint16_t deadBand;            // 0..255
-
 } TEffectCondition;
+
+typedef struct
+{
+  uint8_t reportId;
+  uint8_t command;
+  int16_t arg[3];
+} USB_GUI_Command;
+
+typedef struct {
+  uint8_t command;
+  int16_t arg;
+  uint8_t data[28];
+} GUI_Report;
+
+typedef struct {
+  char id[12] = FIRMWARE_TYPE;
+  char ver[6] = FIRMWARE_VERSION;
+} GUI_Report_Version;
 
 ///effect
 #define USB_DURATION_INFINITE 0x7FFF

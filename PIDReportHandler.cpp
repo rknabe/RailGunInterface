@@ -224,6 +224,7 @@ void PIDReportHandler::UppackUsbData(uint8_t* data, uint16_t len) {
       SetCustomForce((USB_FFBReport_SetCustomForce_Output_Data_t*)data);
       break;
     case 15:
+      usbCommand = *((USB_GUI_Command*)data);
       break;
     default:
       break;

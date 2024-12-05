@@ -49,5 +49,7 @@ public:
   uint8_t* getPIDPool();
   uint8_t* getPIDBlockLoad();
   uint8_t* getPIDStatus();
+
+  USB_GUI_Command usbCommand;
 };
 #endif
