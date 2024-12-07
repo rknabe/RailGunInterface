@@ -496,7 +496,7 @@ void Joystick_::processUsbCmd() {
     Serial.println(usbCmd->command);
 
     //clear output report
-    memset(&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
+    memset((void *)&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
     void *data = USB_GUI_Report.data;
 
     //return data only for read commands
@@ -508,8 +508,12 @@ void Joystick_::processUsbCmd() {
     switch (usbCmd->command) {
       //get data
       case 1:  //return string model+version
-        strcpy_P(((GUI_Report_Version *)data)->id, PSTR(FIRMWARE_TYPE));
-        strcpy_P(((GUI_Report_Version *)data)->ver, PSTR(FIRMWARE_VERSION));
+        strcpy_P(((GUI_Report_Settings *)data)->id, PSTR(FIRMWARE_TYPE));
+        strcpy_P(((GUI_Report_Settings *)data)->ver, PSTR(FIRMWARE_VERSION));
+        ((GUI_Report_Settings *)data)->xAxisMinimum = map(_xAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+        ((GUI_Report_Settings *)data)->xAxisMaximum = map(_xAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+        ((GUI_Report_Settings *)data)->yAxisMinimum = map(_yAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+        ((GUI_Report_Settings *)data)->yAxisMaximum = map(_yAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
         break; /*
       case 2:  //return steering axis data
 #if STEER_TYPE == ST_ANALOG
@@ -673,11 +677,11 @@ void Joystick_::processUsbCmd() {
         break;*/
     }
 
-    if (USB_GUI_Report.command == 1) {
+    if (usbCmd->command == 1) {
       DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
-      USB_GUI_Report.command = 0;
+      memset((void *)&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
       //this should only happen one at gui connection, so send initial joystick state
-      sendState();
+      //sendState();
     }
   }
 
@@ -1041,14 +1045,17 @@ void Joystick_::setHatSwitch(int8_t hatSwitchIndex, int16_t value) {
   if (_autoSendState) sendState();
 }
 
-int Joystick_::buildAndSet16BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]) {
-  int16_t convertedValue;
-  uint8_t highByte;
-  uint8_t lowByte;
-  int16_t realMinimum = min(valueMinimum, valueMaximum);
-  int16_t realMaximum = max(valueMinimum, valueMaximum);
+int Joystick_::set16BitValue(int16_t value, uint8_t dataLocation[]) {
+  uint8_t highByte = (uint8_t)(value >> 8);
+  uint8_t lowByte = (uint8_t)(value & 0x00FF);
+  dataLocation[0] = lowByte;
+  dataLocation[1] = highByte;
+  return 2;
+}
 
-  if (includeValue == false) return 0;
+int Joystick_::normalize(int16_t value, int16_t physicalMinimum, int16_t physicalMaximum, int16_t logicalMinimum, int16_t logicalMaximum) {
+  int16_t realMinimum = min(physicalMinimum, physicalMaximum);
+  int16_t realMaximum = max(physicalMinimum, physicalMaximum);
 
   if (value < realMinimum) {
     value = realMinimum;
@@ -1057,20 +1064,17 @@ int Joystick_::buildAndSet16BitValue(bool includeValue, int16_t value, int16_t v
     value = realMaximum;
   }
 
-  if (valueMinimum > valueMaximum) {
+  if (physicalMinimum > physicalMaximum) {
     // Values go from a larger number to a smaller number (e.g. 1024 to 0)
     value = realMaximum - value + realMinimum;
   }
+  return map(value, realMinimum, realMaximum, logicalMinimum, logicalMaximum);
+}
 
-  convertedValue = map(value, realMinimum, realMaximum, actualMinimum, actualMaximum);
-
-  highByte = (uint8_t)(convertedValue >> 8);
-  lowByte = (uint8_t)(convertedValue & 0x00FF);
-
-  dataLocation[0] = lowByte;
-  dataLocation[1] = highByte;
-
-  return 2;
+int Joystick_::buildAndSet16BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]) {
+  if (includeValue == false) return 0;
+  int convertedValue = normalize(value, valueMinimum, valueMaximum, actualMinimum, actualMaximum);
+  return set16BitValue(convertedValue, dataLocation);
 }
 
 int Joystick_::buildAndSetAxisValue(bool includeAxis, int16_t axisValue, int16_t axisMinimum, int16_t axisMaximum, uint8_t dataLocation[]) {
@@ -1091,7 +1095,7 @@ void Joystick_::sendState() {
   }
 
   // Set Hat Switch Values
-  if (_hatSwitchCount > 0) {
+  /*if (_hatSwitchCount > 0) {
 
     // Calculate hat-switch values
     uint8_t convertedHatSwitch[JOYSTICK_HATSWITCH_COUNT_MAXIMUM];
@@ -1106,22 +1110,27 @@ void Joystick_::sendState() {
     // Pack hat-switch states into a single byte
     data[index++] = (convertedHatSwitch[1] << 4) | (B00001111 & convertedHatSwitch[0]);
 
-  }  // Hat Switches
+  }  // Hat Switches*/
 
   // Set Axis Values
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS, _xAxis, _xAxisMinimum, _xAxisMaximum, &(data[index]));
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
-  index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
-  index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _xAxisRotation, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));
-  index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RY_AXIS, _yAxisRotation, _ryAxisMinimum, _ryAxisMaximum, &(data[index]));
-  index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RZ_AXIS, _zAxisRotation, _rzAxisMinimum, _rzAxisMaximum, &(data[index]));
+  //Serial.println(_xAxis);
+  //Serial.println(_yAxis);
+
+  //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
+  //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _xAxisRotation, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));
+  //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RY_AXIS, _yAxisRotation, _ryAxisMinimum, _ryAxisMaximum, &(data[index]));
+  //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RZ_AXIS, _zAxisRotation, _rzAxisMinimum, _rzAxisMaximum, &(data[index]));
 
   // Set Simulation Values
-  index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_RUDDER, _rudder, _rudderMinimum, _rudderMaximum, &(data[index]));
-  index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_THROTTLE, _throttle, _throttleMinimum, _throttleMaximum, &(data[index]));
-  index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_ACCELERATOR, _accelerator, _acceleratorMinimum, _acceleratorMaximum, &(data[index]));
-  index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_BRAKE, _brake, _brakeMinimum, _brakeMaximum, &(data[index]));
-  index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_STEERING, _steering, _steeringMinimum, _steeringMaximum, &(data[index]));
+  //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_RUDDER, _rudder, _rudderMinimum, _rudderMaximum, &(data[index]));
+  //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_THROTTLE, _throttle, _throttleMinimum, _throttleMaximum, &(data[index]));
+  //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_ACCELERATOR, _accelerator, _acceleratorMinimum, _acceleratorMaximum, &(data[index]));
+  //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_BRAKE, _brake, _brakeMinimum, _brakeMaximum, &(data[index]));
+  //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_STEERING, _steering, _steeringMinimum, _steeringMaximum, &(data[index]));
+
+
 
   DynamicHID().SendReport(_hidReportId, data, _hidReportSize);
 }

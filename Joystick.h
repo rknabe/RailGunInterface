@@ -114,13 +114,13 @@ private:
   bool _autoSendState;
   uint8_t _buttonCount;
   uint8_t _buttonValuesArraySize = 0;
-  uint8_t _hatSwitchCount;
+  uint8_t _hatSwitchCount = 0;
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
-  int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
-  int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
-  int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
-  int16_t _yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+  int16_t _xAxisMinimum = 14;   //JOYSTICK_DEFAULT_AXIS_MINIMUM;
+  int16_t _xAxisMaximum = 932;  //JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+  int16_t _yAxisMinimum = 91;   //JOYSTICK_DEFAULT_AXIS_MINIMUM;
+  int16_t _yAxisMaximum = 955;  //JOYSTICK_DEFAULT_AXIS_MAXIMUM;
   int16_t _zAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
   int16_t _zAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
   int16_t _rxAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
@@ -149,7 +149,7 @@ private:
   //force feedback effect params
   //EffectParams* m_effect_params;
 
-  GUI_Report USB_GUI_Report;
+  volatile GUI_Report USB_GUI_Report;
 
   //lock data
   bool is_calculating_force = true;
@@ -169,6 +169,8 @@ private:
   void forceCalculator(int32_t* forces);
   int32_t getEffectForce(volatile TEffectState& effect, Gains _gains, EffectParams _effect_params, uint8_t axis);*/
 protected:
+  int set16BitValue(int16_t value, uint8_t dataLocation[]);
+  int normalize(int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum);
   int buildAndSet16BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]);
   int buildAndSetAxisValue(bool includeAxis, int16_t axisValue, int16_t axisMinimum, int16_t axisMaximum, uint8_t dataLocation[]);
   int buildAndSetSimulationValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, uint8_t dataLocation[]);
@@ -178,18 +180,18 @@ public:
     uint8_t hidReportId = JOYSTICK_DEFAULT_REPORT_ID,
     uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
     uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
-    uint8_t hatSwitchCount = JOYSTICK_DEFAULT_HATSWITCH_COUNT,
+    uint8_t hatSwitchCount = 0,
     bool includeXAxis = true,
     bool includeYAxis = true,
-    bool includeZAxis = true,
-    bool includeRxAxis = true,
-    bool includeRyAxis = true,
-    bool includeRzAxis = true,
-    bool includeRudder = true,
-    bool includeThrottle = true,
-    bool includeAccelerator = true,
-    bool includeBrake = true,
-    bool includeSteering = true);
+    bool includeZAxis = false,
+    bool includeRxAxis = false,
+    bool includeRyAxis = false,
+    bool includeRzAxis = false,
+    bool includeRudder = false,
+    bool includeThrottle = false,
+    bool includeAccelerator = false,
+    bool includeBrake = false,
+    bool includeSteering = false);
 
   void begin(bool initAutoSendState = true);
   void end();
@@ -263,8 +265,8 @@ public:
   void sendState();
   // get USB PID data
   void getUSBPID();
-  
-    //force feedback Interfaces
+
+  //force feedback Interfaces
   /*
   void getForce(int32_t* forces);
   //set gain functions

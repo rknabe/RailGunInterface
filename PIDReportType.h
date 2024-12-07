@@ -48,7 +48,7 @@ typedef struct  //PID state
 
 ///Host-->Device
 
-typedef struct  //FFB: Set Effect Output Report
+/*typedef struct  //FFB: Set Effect Output Report
 {
   uint8_t reportId;                // =1
   uint8_t effectBlockIndex;        // 1..40
@@ -133,7 +133,7 @@ typedef struct  //FFB: Set EffectOperation Output Report
   uint8_t effectBlockIndex;  // 1..40
   uint8_t operation;         // 1=Start, 2=StartSolo, 3=Stop
   uint8_t loopCount;
-} USB_FFBReport_EffectOperation_Output_Data_t;
+} USB_FFBReport_EffectOperation_Output_Data_t;*/
 
 typedef struct  //FFB: Block Free Output Report
 {
@@ -194,8 +194,7 @@ typedef struct {
   uint16_t deadBand;            // 0..255
 } TEffectCondition;
 
-typedef struct
-{
+typedef struct {
   uint8_t reportId;
   uint8_t command;
   int16_t arg[3];
@@ -208,14 +207,18 @@ typedef struct {
 } GUI_Report;
 
 typedef struct {
-  char id[12] = FIRMWARE_TYPE;
-  char ver[6] = FIRMWARE_VERSION;
-} GUI_Report_Version;
+  char id[9] = FIRMWARE_TYPE;
+  char ver[5] = FIRMWARE_VERSION;
+  int16_t xAxisMinimum;
+  int16_t xAxisMaximum;
+  int16_t yAxisMinimum;
+  int16_t yAxisMaximum; 
+} GUI_Report_Settings;
 
 ///effect
-#define USB_DURATION_INFINITE 0x7FFF
+//#define USB_DURATION_INFINITE 0x7FFF
 
-#define USB_EFFECT_CONSTANT 0x01
+/*#define USB_EFFECT_CONSTANT 0x01
 #define USB_EFFECT_RAMP 0x02
 #define USB_EFFECT_SQUARE 0x03
 #define USB_EFFECT_SINE 0x04
@@ -230,16 +233,16 @@ typedef struct {
 // Bit-masks for effect states
 #define MEFFECTSTATE_FREE 0x00
 #define MEFFECTSTATE_ALLOCATED 0x01
-#define MEFFECTSTATE_PLAYING 0x02
+#define MEFFECTSTATE_PLAYING 0x02*/
 
 #define X_AXIS_ENABLE 0x01
 #define Y_AXIS_ENABLE 0x02
 #define DIRECTION_ENABLE 0x04
 //these were needed for testing
-#define INERTIA_FORCE 0xFF
-#define FRICTION_FORCE 0xFF
-#define INERTIA_DEADBAND 0x30
-#define FRICTION_DEADBAND 0x30
+//#define INERTIA_FORCE 0xFF
+//#define FRICTION_FORCE 0xFF
+//#define INERTIA_DEADBAND 0x30
+//#define FRICTION_DEADBAND 0x30
 
 typedef struct {
   volatile uint8_t state;  // see constants <MEffectState_*>

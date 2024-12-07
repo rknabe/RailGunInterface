@@ -108,8 +108,6 @@ void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
 
-  controller.setYAxisRange(0, 1023);
-  controller.setYAxisRange(0, 1023);
   controller.begin(false);
 
   btnTrigger.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
