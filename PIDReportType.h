@@ -207,8 +207,8 @@ typedef struct {
 } GUI_Report;
 
 typedef struct {
-  char id[9] = FIRMWARE_TYPE;
-  char ver[5] = FIRMWARE_VERSION;
+  char id[10] = FIRMWARE_TYPE;
+  char ver[6] = FIRMWARE_VERSION;
   int16_t xAxisMinimum;
   int16_t xAxisMaximum;
   int16_t yAxisMinimum;

@@ -117,10 +117,10 @@ private:
   uint8_t _hatSwitchCount = 0;
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
-  int16_t _xAxisMinimum = 14;   //JOYSTICK_DEFAULT_AXIS_MINIMUM;
-  int16_t _xAxisMaximum = 932;  //JOYSTICK_DEFAULT_AXIS_MAXIMUM;
-  int16_t _yAxisMinimum = 91;   //JOYSTICK_DEFAULT_AXIS_MINIMUM;
-  int16_t _yAxisMaximum = 955;  //JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+  int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM; //14;
+  int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM; //932;  
+  int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM; //91;
+  int16_t _yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM; //955; 
   int16_t _zAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
   int16_t _zAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
   int16_t _rxAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
@@ -149,7 +149,7 @@ private:
   //force feedback effect params
   //EffectParams* m_effect_params;
 
-  volatile GUI_Report USB_GUI_Report;
+  GUI_Report USB_GUI_Report;
 
   //lock data
   bool is_calculating_force = true;
@@ -263,6 +263,7 @@ public:
   void setHatSwitch(int8_t hatSwitch, int16_t value);
 
   void sendState();
+  void sendGuiReport(void* data);
   // get USB PID data
   void getUSBPID();
 
