@@ -22,6 +22,7 @@
 #define JOYSTICK_h
 
 #include "DynamicHID.h"
+#include "Settings.h"
 
 #if ARDUINO < 10606
 #error The Joystick library requires Arduino IDE 1.6.6 or greater. Please update your IDE.
@@ -44,8 +45,6 @@
 
 #define JOYSTICK_DEFAULT_REPORT_ID 0x01
 #define JOYSTICK_DEFAULT_BUTTON_COUNT 32
-#define JOYSTICK_DEFAULT_AXIS_MINIMUM 0
-#define JOYSTICK_DEFAULT_AXIS_MAXIMUM 1023
 #define JOYSTICK_DEFAULT_SIMULATOR_MINIMUM 0
 #define JOYSTICK_DEFAULT_SIMULATOR_MAXIMUM 1023
 #define JOYSTICK_DEFAULT_HATSWITCH_COUNT 2
@@ -117,10 +116,10 @@ private:
   uint8_t _hatSwitchCount = 0;
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
-  int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM; //14;
-  int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM; //932;  
-  int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM; //91;
-  int16_t _yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM; //955; 
+  int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
+  int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //932;
+  int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //91;
+  int16_t _yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //955;
   int16_t _zAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
   int16_t _zAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
   int16_t _rxAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
@@ -150,6 +149,7 @@ private:
   //EffectParams* m_effect_params;
 
   GUI_Report USB_GUI_Report;
+  SettingsEEPROM eeprom;
 
   //lock data
   bool is_calculating_force = true;
@@ -289,6 +289,9 @@ public:
   };*/
 
   void processUsbCmd();
+  void loadSettings();
+  void saveSettings();
+  void loadDefaultSettings();
 };
 
 #endif  // !defined(_USING_DYNAMIC_HID)

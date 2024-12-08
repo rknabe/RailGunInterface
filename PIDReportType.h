@@ -197,7 +197,7 @@ typedef struct {
 typedef struct {
   uint8_t reportId;
   uint8_t command;
-  int16_t arg[3];
+  int16_t arg[4];
 } USB_GUI_Command;
 
 typedef struct {
@@ -207,13 +207,13 @@ typedef struct {
 } GUI_Report;
 
 typedef struct {
-  char id[10] = FIRMWARE_TYPE;
-  char ver[6] = FIRMWARE_VERSION;
+  char id[10];
+  char ver[6];
   int16_t xAxisMinimum;
   int16_t xAxisMaximum;
   int16_t yAxisMinimum;
   int16_t yAxisMaximum; 
-} GUI_Report_Settings;
+} Settings;
 
 ///effect
 //#define USB_DURATION_INFINITE 0x7FFF

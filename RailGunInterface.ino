@@ -110,6 +110,8 @@ void setup() {
 
   controller.begin(false);
 
+  controller.loadSettings();
+
   btnTrigger.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
   btnTrigger.setup(BTN_TRIGGER, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
 

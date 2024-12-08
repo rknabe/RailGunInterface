@@ -622,7 +622,7 @@ static const uint8_t pidReportDescriptor[] PROGMEM = {
   0x15, 0x00,        //   LOGICAL_MINIMUM (0)
   0x26, 0xff, 0x00,  //   LOGICAL_MAXIMUM (255)
   0x75, 0x10,        //   REPORT_SIZE (16)
-  0x95, 0x03,        //   REPORT_COUNT (3)
+  0x95, 0x04,        //   REPORT_COUNT (3)
   0x91, 0x02,        //     Output (Data,Var,Abs)
   //0xb1, 0x82,                  //   FEATURE (Data,Var,Abs,Vol)  //3 args
   0x85, 0x10,  //   REPORT_ID (16)

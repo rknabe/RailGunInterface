@@ -488,13 +488,42 @@ void Joystick_::getUSBPID() {
 
 void Joystick_::sendGuiReport(void *data) {
   //return settings and firmware version
-  strcpy_P(((GUI_Report_Settings *)data)->id, PSTR(FIRMWARE_TYPE));
-  strcpy_P(((GUI_Report_Settings *)data)->ver, PSTR(FIRMWARE_VERSION));
-  ((GUI_Report_Settings *)data)->xAxisMinimum = map(_xAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
-  ((GUI_Report_Settings *)data)->xAxisMaximum = map(_xAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
-  ((GUI_Report_Settings *)data)->yAxisMinimum = map(_yAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
-  ((GUI_Report_Settings *)data)->yAxisMaximum = map(_yAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+  strcpy_P(((Settings *)data)->id, PSTR(FIRMWARE_TYPE));
+  strcpy_P(((Settings *)data)->ver, PSTR(FIRMWARE_VERSION));
+  ((Settings *)data)->xAxisMinimum = map(_xAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+  ((Settings *)data)->xAxisMaximum = map(_xAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+  ((Settings *)data)->yAxisMinimum = map(_yAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+  ((Settings *)data)->yAxisMaximum = map(_yAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
   DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
+}
+
+void Joystick_::loadSettings() {
+  Serial.println("Loading settings data");
+  Settings settings = eeprom.load(false);
+  _xAxisMinimum = settings.xAxisMinimum;
+  _xAxisMaximum = settings.xAxisMaximum;
+  _yAxisMinimum = settings.yAxisMinimum;
+  _yAxisMaximum = settings.yAxisMaximum;
+}
+
+void Joystick_::saveSettings() {
+  Serial.println("Saving settings data");
+  Settings settings;
+  strcpy_P(settings.id, PSTR(FIRMWARE_TYPE));
+  strcpy_P(settings.ver, PSTR(FIRMWARE_VERSION));
+  settings.xAxisMinimum = _xAxisMinimum;
+  settings.xAxisMaximum = _xAxisMaximum;
+  settings.yAxisMinimum = _yAxisMinimum;
+  settings.yAxisMaximum = _yAxisMaximum;
+  eeprom.save(settings);
+}
+
+void Joystick_::loadDefaultSettings() {
+  Serial.println("Loading default settings data");
+  _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
+  _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //932;
+  _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //91;
+  _yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //955;
 }
 
 /*
@@ -511,21 +540,39 @@ void Joystick_::processUsbCmd() {
     void *data = USB_GUI_Report.data;
 
     //return data only for read commands
-    if (usbCmd->command < 10) {
+    //if (usbCmd->command < 10) {
       USB_GUI_Report.command = usbCmd->command;
       USB_GUI_Report.arg = usbCmd->arg[0];
-    }
+    //}
 
     switch (usbCmd->command) {
       //get data
       case 1:
         sendGuiReport(data);
         break;
-      case 30:
-        
+      case 30:  //heatbeat check from gui
+        break;
+      case 2:  //set axis calibration
+        Serial.println("Updating calibration data");
+        _xAxisMinimum = usbCmd->arg[0];
+        _xAxisMaximum = usbCmd->arg[1];
+        _yAxisMinimum = usbCmd->arg[2];
+        _yAxisMaximum = usbCmd->arg[3];
+        sendGuiReport(data);
+        break;
+      case 16:  //save settings to eeprom
+        saveSettings();
+        sendGuiReport(data);
+        break;
+      case 17:  //save settings to eeprom
+        loadSettings();
+        sendGuiReport(data);
+        break;
+      case 18:  //load default settings
+        loadDefaultSettings();
+        sendGuiReport(data);
         break;
         /*
-      case 2:  //return steering axis data
 #if STEER_TYPE == ST_ANALOG
         ((GUI_Report_SteerAxis *)data)->rawValue = wheel.axisWheel->rawValue;
         ((GUI_Report_SteerAxis *)data)->value = wheel.axisWheel->value;
@@ -844,8 +891,8 @@ void Joystick_::sendState() {
   // Set Axis Values
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS, _xAxis, _xAxisMinimum, _xAxisMaximum, &(data[index]));
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
-  Serial.println(_xAxis);
-  Serial.println(_yAxis);
+  //Serial.println(_xAxis);
+  //Serial.println(_yAxis);
 
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _xAxisRotation, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));
