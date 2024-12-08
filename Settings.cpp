@@ -9,6 +9,16 @@ uint8_t SettingsEEPROM::calcChecksum() {
   return checksum;
 }
 
+Settings SettingsEEPROM::getDefaults() {
+  SettingsEEPROM settingsE;
+  settingsE.data.xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
+  settingsE.data.xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+  settingsE.data.yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
+  settingsE.data.yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+  settingsE.data.autoRecoil = true;
+  return settingsE.data;
+}
+
 Settings SettingsEEPROM::load(bool defaults) {
   SettingsEEPROM settingsE;
   uint8_t checksum;
@@ -18,10 +28,7 @@ Settings SettingsEEPROM::load(bool defaults) {
   //Loading defaults
   if (defaults || (settingsE.checksum != checksum)) {
     Serial.println(F("Loading defaults"));
-    settingsE.data.xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
-    settingsE.data.xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
-    settingsE.data.yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
-    settingsE.data.yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
+    return getDefaults();
   }
   return settingsE.data;
 }

@@ -116,6 +116,7 @@ private:
   uint8_t _hatSwitchCount = 0;
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
+  bool autoRecoil = true;
   int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
   int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //932;
   int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //91;
@@ -292,6 +293,8 @@ public:
   void loadSettings();
   void saveSettings();
   void loadDefaultSettings();
+  void loadSettings(Settings settings);
+  bool getAutoRecoil();
 };
 
 #endif  // !defined(_USING_DYNAMIC_HID)

@@ -75,10 +75,14 @@ bool releaseRecoil(void *) {
 void engageRecoil() {
   if (!recoilEngaged) {
     recoilEngaged = true;
-    digitalWrite(RECOIL_RELAY_PIN, HIGH);
+    if (controller.getAutoRecoil()) {
+      digitalWrite(RECOIL_RELAY_PIN, HIGH);
+    }
     controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
     sendUpdate = true;
+    //if (controller.getAutoRecoil()) {
     timer.in(RECOIL_MS, releaseRecoil);
+    //}
   }
 }
 
@@ -86,7 +90,7 @@ void pressedCallback(uint8_t pinIn) {
   controller.setButton(getButtonNumFromPin(pinIn), HIGH);
   sendUpdate = true;
 
-  if (pinIn == BTN_TRIGGER) {
+  if (pinIn == BTN_TRIGGER && controller.getAutoRecoil()) {
     engageRecoil();
   }
 }

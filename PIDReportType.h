@@ -206,15 +206,6 @@ typedef struct {
   uint8_t data[28];
 } GUI_Report;
 
-typedef struct {
-  char id[10];
-  char ver[6];
-  int16_t xAxisMinimum;
-  int16_t xAxisMaximum;
-  int16_t yAxisMinimum;
-  int16_t yAxisMaximum; 
-} Settings;
-
 ///effect
 //#define USB_DURATION_INFINITE 0x7FFF
 

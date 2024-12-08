@@ -486,6 +486,10 @@ void Joystick_::getUSBPID() {
   processUsbCmd();
 }
 
+bool Joystick_::getAutoRecoil() {
+  return autoRecoil;
+}
+
 void Joystick_::sendGuiReport(void *data) {
   //return settings and firmware version
   strcpy_P(((Settings *)data)->id, PSTR(FIRMWARE_TYPE));
@@ -494,16 +498,22 @@ void Joystick_::sendGuiReport(void *data) {
   ((Settings *)data)->xAxisMaximum = map(_xAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
   ((Settings *)data)->yAxisMinimum = map(_yAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
   ((Settings *)data)->yAxisMaximum = map(_yAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
+  ((Settings *)data)->autoRecoil = autoRecoil;
   DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
+}
+
+void Joystick_::loadSettings(Settings settings) {
+  _xAxisMinimum = settings.xAxisMinimum;
+  _xAxisMaximum = settings.xAxisMaximum;
+  _yAxisMinimum = settings.yAxisMinimum;
+  _yAxisMaximum = settings.yAxisMaximum;
+  autoRecoil = settings.autoRecoil;
 }
 
 void Joystick_::loadSettings() {
   Serial.println("Loading settings data");
   Settings settings = eeprom.load(false);
-  _xAxisMinimum = settings.xAxisMinimum;
-  _xAxisMaximum = settings.xAxisMaximum;
-  _yAxisMinimum = settings.yAxisMinimum;
-  _yAxisMaximum = settings.yAxisMaximum;
+  loadSettings(settings);
 }
 
 void Joystick_::saveSettings() {
@@ -515,15 +525,14 @@ void Joystick_::saveSettings() {
   settings.xAxisMaximum = _xAxisMaximum;
   settings.yAxisMinimum = _yAxisMinimum;
   settings.yAxisMaximum = _yAxisMaximum;
+  settings.autoRecoil = autoRecoil;
   eeprom.save(settings);
 }
 
 void Joystick_::loadDefaultSettings() {
   Serial.println("Loading default settings data");
-  _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
-  _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //932;
-  _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //91;
-  _yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //955;
+  Settings settings;
+  loadSettings(eeprom.getDefaults());
 }
 
 /*
@@ -541,8 +550,8 @@ void Joystick_::processUsbCmd() {
 
     //return data only for read commands
     //if (usbCmd->command < 10) {
-      USB_GUI_Report.command = usbCmd->command;
-      USB_GUI_Report.arg = usbCmd->arg[0];
+    USB_GUI_Report.command = usbCmd->command;
+    USB_GUI_Report.arg = usbCmd->arg[0];
     //}
 
     switch (usbCmd->command) {
@@ -558,6 +567,10 @@ void Joystick_::processUsbCmd() {
         _xAxisMaximum = usbCmd->arg[1];
         _yAxisMinimum = usbCmd->arg[2];
         _yAxisMaximum = usbCmd->arg[3];
+        sendGuiReport(data);
+        break;
+      case 3:  //set axis calibration
+        autoRecoil = usbCmd->arg[0] ? true : false;
         sendGuiReport(data);
         break;
       case 16:  //save settings to eeprom
