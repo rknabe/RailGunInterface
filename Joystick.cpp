@@ -574,6 +574,7 @@ void Joystick_::processUsbCmd() {
         break;
       case 1:
         sendGuiReport(data);
+        sendState();
         //Serial.print("send gui report");
         break;
       case 2:  //set axis calibration
