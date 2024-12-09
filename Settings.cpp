@@ -16,6 +16,8 @@ Settings SettingsEEPROM::getDefaults() {
   settingsE.data.yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;
   settingsE.data.yAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;
   settingsE.data.autoRecoil = true;
+  settingsE.data.triggerRepeatRate = 100;
+  settingsE.data.triggerHoldTime = 1000;
   return settingsE.data;
 }
 

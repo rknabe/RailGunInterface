@@ -47,6 +47,7 @@ bool recoilEngaged = false;
 bool sendUpdate = false;
 int lastXAxisValue = -1;
 int lastYAxisValue = -1;
+unsigned long lastTriggerRepeat = 0;
 
 int getButtonNumFromPin(int pin) {
   for (int i = 0; i < buttonCount; i++) {
@@ -80,9 +81,7 @@ void engageRecoil() {
     }
     controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
     sendUpdate = true;
-    //if (controller.getAutoRecoil()) {
     timer.in(RECOIL_MS, releaseRecoil);
-    //}
   }
 }
 
@@ -98,11 +97,16 @@ void pressedCallback(uint8_t pinIn) {
 void releasedCallback(uint8_t pinIn) {
   controller.setButton(getButtonNumFromPin(pinIn), LOW);
   sendUpdate = true;
+  lastTriggerRepeat = 0;
 }
 
 void pressedDurationCallback(uint8_t pinIn, unsigned long duration) {
-  if (pinIn == BTN_TRIGGER && duration > HOLD_MS) {
-    engageRecoil();
+  if (pinIn == BTN_TRIGGER && duration >= controller.getTriggerHoldTime() && controller.getTriggerRepeatRate() > 0) {
+    long now = millis();
+    if (now - lastTriggerRepeat >= controller.getTriggerRepeatRate()) {
+      engageRecoil();
+      lastTriggerRepeat = now;
+    }
   }
 }
 

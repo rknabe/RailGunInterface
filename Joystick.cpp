@@ -490,6 +490,14 @@ bool Joystick_::getAutoRecoil() {
   return autoRecoil;
 }
 
+uint16_t Joystick_::getTriggerRepeatRate() {
+  return triggerRepeatRate;
+}
+
+uint16_t Joystick_::getTriggerHoldTime() {
+  return triggerHoldTime;
+}
+
 void Joystick_::sendGuiReport(void *data) {
   //return settings and firmware version
   strcpy_P(((Settings *)data)->id, PSTR(FIRMWARE_TYPE));
@@ -499,6 +507,8 @@ void Joystick_::sendGuiReport(void *data) {
   ((Settings *)data)->yAxisMinimum = map(_yAxisMinimum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
   ((Settings *)data)->yAxisMaximum = map(_yAxisMaximum, JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM, JOYSTICK_AXIS_MINIMUM, JOYSTICK_AXIS_MAXIMUM);
   ((Settings *)data)->autoRecoil = autoRecoil;
+  ((Settings *)data)->triggerRepeatRate = triggerRepeatRate;
+  ((Settings *)data)->triggerHoldTime = triggerHoldTime;
   DynamicHID().SendReport(16, &USB_GUI_Report, sizeof(USB_GUI_Report));
 }
 
@@ -508,6 +518,8 @@ void Joystick_::loadSettings(Settings settings) {
   _yAxisMinimum = settings.yAxisMinimum;
   _yAxisMaximum = settings.yAxisMaximum;
   autoRecoil = settings.autoRecoil;
+  triggerRepeatRate = settings.triggerRepeatRate;
+  triggerHoldTime = settings.triggerHoldTime;
 }
 
 void Joystick_::loadSettings() {
@@ -526,6 +538,8 @@ void Joystick_::saveSettings() {
   settings.yAxisMinimum = _yAxisMinimum;
   settings.yAxisMaximum = _yAxisMaximum;
   settings.autoRecoil = autoRecoil;
+  settings.triggerRepeatRate = triggerRepeatRate;
+  settings.triggerHoldTime = triggerHoldTime;
   eeprom.save(settings);
 }
 
@@ -559,8 +573,6 @@ void Joystick_::processUsbCmd() {
       case 1:
         sendGuiReport(data);
         break;
-      case 30:  //heatbeat check from gui
-        break;
       case 2:  //set axis calibration
         Serial.println("Updating calibration data");
         _xAxisMinimum = usbCmd->arg[0];
@@ -569,8 +581,20 @@ void Joystick_::processUsbCmd() {
         _yAxisMaximum = usbCmd->arg[3];
         sendGuiReport(data);
         break;
-      case 3:  //set axis calibration
+      case 3:  //set auto recoil on/off
         autoRecoil = usbCmd->arg[0] ? true : false;
+        sendGuiReport(data);
+        break;
+      case 4:  //set triggerRepeatRate
+        Serial.print("set triggerRepeatRate:");
+        Serial.println(usbCmd->arg[0]);
+        triggerRepeatRate = usbCmd->arg[0];
+        sendGuiReport(data);
+        break;
+      case 5:  //set triggerHoldTime
+        Serial.print("set triggerHoldTime:");
+        Serial.println(usbCmd->arg[0]);
+        triggerHoldTime = usbCmd->arg[0];
         sendGuiReport(data);
         break;
       case 16:  //save settings to eeprom
@@ -584,6 +608,8 @@ void Joystick_::processUsbCmd() {
       case 18:  //load default settings
         loadDefaultSettings();
         sendGuiReport(data);
+        break;
+      case 30:  //heatbeat check from gui
         break;
         /*
 #if STEER_TYPE == ST_ANALOG

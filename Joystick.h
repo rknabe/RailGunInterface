@@ -1,3 +1,4 @@
+#include <stdint.h>
 /*
   Joystick.h
 
@@ -117,6 +118,8 @@ private:
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
   bool autoRecoil = true;
+  int16_t triggerRepeatRate = 100;
+  int16_t triggerHoldTime = 1000;
   int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
   int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //932;
   int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //91;
@@ -295,6 +298,8 @@ public:
   void loadDefaultSettings();
   void loadSettings(Settings settings);
   bool getAutoRecoil();
+  uint16_t getTriggerRepeatRate();
+  uint16_t getTriggerHoldTime();
 };
 
 #endif  // !defined(_USING_DYNAMIC_HID)

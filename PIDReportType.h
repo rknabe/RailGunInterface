@@ -203,7 +203,7 @@ typedef struct {
 typedef struct {
   uint8_t command;
   int16_t arg;
-  uint8_t data[28];
+  uint8_t data[29];  //this total needs to match size given in PidDesciptor.h line 631, and size of Settings struct in Settings.h
 } GUI_Report;
 
 ///effect

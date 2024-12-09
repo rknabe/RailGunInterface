@@ -16,6 +16,8 @@ typedef struct {
   int16_t yAxisMinimum;
   int16_t yAxisMaximum;
   bool autoRecoil;
+  int16_t triggerRepeatRate;
+  int16_t triggerHoldTime;
 } Settings;
 
 //all settings
