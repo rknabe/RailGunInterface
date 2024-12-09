@@ -570,8 +570,11 @@ void Joystick_::processUsbCmd() {
 
     switch (usbCmd->command) {
       //get data
+      case 0:  //heatbeat check from gui
+        break;
       case 1:
         sendGuiReport(data);
+        //Serial.print("send gui report");
         break;
       case 2:  //set axis calibration
         Serial.println("Updating calibration data");
@@ -586,14 +589,14 @@ void Joystick_::processUsbCmd() {
         sendGuiReport(data);
         break;
       case 4:  //set triggerRepeatRate
-        Serial.print("set triggerRepeatRate:");
-        Serial.println(usbCmd->arg[0]);
+        //Serial.print("set triggerRepeatRate:");
+        //Serial.println(usbCmd->arg[0]);
         triggerRepeatRate = usbCmd->arg[0];
         sendGuiReport(data);
         break;
       case 5:  //set triggerHoldTime
-        Serial.print("set triggerHoldTime:");
-        Serial.println(usbCmd->arg[0]);
+        //Serial.print("set triggerHoldTime:");
+        //Serial.println(usbCmd->arg[0]);
         triggerHoldTime = usbCmd->arg[0];
         sendGuiReport(data);
         break;
@@ -608,8 +611,6 @@ void Joystick_::processUsbCmd() {
       case 18:  //load default settings
         loadDefaultSettings();
         sendGuiReport(data);
-        break;
-      case 30:  //heatbeat check from gui
         break;
         /*
 #if STEER_TYPE == ST_ANALOG
