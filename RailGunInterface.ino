@@ -43,7 +43,7 @@ const int buttonPins[buttonCount] = {
 
 unsigned long HOLD_MS = 1000;
 unsigned long RECOIL_MS = 62;
-bool recoilEngaged = false;
+bool isFiring = false;
 bool sendUpdate = false;
 int lastXAxisValue = -1;
 int lastYAxisValue = -1;
@@ -58,33 +58,33 @@ int getButtonNumFromPin(int pin) {
   return 0;
 }
 
-bool releaseTrigger(void *) {
-  controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
-}
 
 bool setRecoilReleased(void *) {
-  recoilEngaged = false;
+  isFiring = false;
   return false;
 }
 
-bool releaseRecoil(void *) {
-  if (recoilEngaged) {
+bool releaseFire(void *) {
+  if (isFiring) {
     digitalWrite(RECOIL_RELAY_PIN, LOW);
-    //controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
+    controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
     sendUpdate = true;
     timer.in(RECOIL_MS, setRecoilReleased);
   }
   return false;
 }
 
-void doRecoil() {
-  if (!recoilEngaged) {
-    recoilEngaged = true;
-    if (controller.getAutoRecoil()) {
+void pressFire(bool doRecoil, bool setButton) {
+  if (!isFiring) {
+    isFiring = true;
+    if (doRecoil) {
       digitalWrite(RECOIL_RELAY_PIN, HIGH);
     }
+    if (setButton) {
+      controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
+    }
     sendUpdate = true;
-    timer.in(RECOIL_MS, releaseRecoil);
+    timer.in(RECOIL_MS, releaseFire);
   }
 }
 
@@ -93,7 +93,7 @@ void pressedCallback(uint8_t pinIn) {
   sendUpdate = true;
 
   if (pinIn == BTN_TRIGGER && controller.getAutoRecoil()) {
-    doRecoil();
+    pressFire(true, true);
   }
 }
 
@@ -107,9 +107,7 @@ void pressedDurationCallback(uint8_t pinIn, unsigned long duration) {
   if (pinIn == BTN_TRIGGER && duration >= controller.getTriggerHoldTime() && controller.getTriggerRepeatRate() > 0) {
     long now = millis();
     if (now - lastTriggerRepeat >= controller.getTriggerRepeatRate()) {
-      controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
-      doRecoil();
-      timer.in(RECOIL_MS, releaseTrigger);
+      pressFire(controller.getAutoRecoil(), true);
       lastTriggerRepeat = now;
     }
   }
@@ -198,7 +196,9 @@ void processSerial() {
     sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
 
     if (strcmp_P(cmd, PSTR("recoil")) == 0) {
-      doRecoil();
+      if (arg1 == 1) {
+        pressFire(true, false);
+      }
     }
   }
 }
