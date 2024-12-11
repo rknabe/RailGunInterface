@@ -523,13 +523,11 @@ void Joystick_::loadSettings(Settings settings) {
 }
 
 void Joystick_::loadSettings() {
-  Serial.println("Loading settings data");
   Settings settings = eeprom.load(false);
   loadSettings(settings);
 }
 
 void Joystick_::saveSettings() {
-  Serial.println("Saving settings data");
   Settings settings;
   strcpy_P(settings.id, PSTR(FIRMWARE_TYPE));
   strcpy_P(settings.ver, PSTR(FIRMWARE_VERSION));
@@ -544,7 +542,6 @@ void Joystick_::saveSettings() {
 }
 
 void Joystick_::loadDefaultSettings() {
-  Serial.println("Loading default settings data");
   loadSettings(eeprom.getDefaults());
 }
 
@@ -554,10 +551,7 @@ void Joystick_::loadDefaultSettings() {
 void Joystick_::processUsbCmd() {
   USB_GUI_Command *usbCmd = &DynamicHID().pidReportHandler.usbCommand;
   if (usbCmd->command) {
-    Serial.print("reportId:");
-    Serial.println(usbCmd->reportId);
-    Serial.print("cmd:");
-    Serial.println(usbCmd->command);
+
     //clear output report
     memset((void *)&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
     void *data = USB_GUI_Report.data;
@@ -575,10 +569,8 @@ void Joystick_::processUsbCmd() {
       case 1:
         sendGuiReport(data);
         sendState();
-        //Serial.print("send gui report");
         break;
       case 2:  //set axis calibration
-        Serial.println("Updating calibration data");
         _xAxisMinimum = usbCmd->arg[0];
         _xAxisMaximum = usbCmd->arg[1];
         _yAxisMinimum = usbCmd->arg[2];
@@ -590,14 +582,10 @@ void Joystick_::processUsbCmd() {
         sendGuiReport(data);
         break;
       case 4:  //set triggerRepeatRate
-        //Serial.print("set triggerRepeatRate:");
-        //Serial.println(usbCmd->arg[0]);
         triggerRepeatRate = usbCmd->arg[0];
         sendGuiReport(data);
         break;
       case 5:  //set triggerHoldTime
-        //Serial.print("set triggerHoldTime:");
-        //Serial.println(usbCmd->arg[0]);
         triggerHoldTime = usbCmd->arg[0];
         sendGuiReport(data);
         break;
@@ -614,7 +602,9 @@ void Joystick_::processUsbCmd() {
         sendGuiReport(data);
         break;
       case 19:  //recoil
-        pressFire(true, false);
+        if (usbCmd->arg[0] > 0) {
+          pressFire(true, false);
+        }
         break;
     }
   }
@@ -775,8 +765,6 @@ void Joystick_::sendState() {
   // Set Axis Values
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS, _xAxis, _xAxisMinimum, _xAxisMaximum, &(data[index]));
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
-  //Serial.println(_xAxis);
-  //Serial.println(_yAxis);
 
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _xAxisRotation, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));

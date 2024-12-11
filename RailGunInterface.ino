@@ -118,6 +118,7 @@ void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
 
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
+  Serial.setTimeout(10);
 
   controller.begin(false);
 
@@ -190,7 +191,7 @@ void processSerial() {
   if (Serial.available()) {
     char cmd[16];
     int arg1 = -32768, arg2 = -32768, arg3 = -32768;
-    String line = Serial.readString();
+    String line = Serial.readStringUntil('~');
 
     line.toLowerCase();
     sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);

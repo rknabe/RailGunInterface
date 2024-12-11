@@ -29,7 +29,6 @@ Settings SettingsEEPROM::load(bool defaults) {
 
   //Loading defaults
   if (defaults || (settingsE.checksum != checksum)) {
-    Serial.println(F("Loading defaults"));
     return getDefaults();
   }
   return settingsE.data;

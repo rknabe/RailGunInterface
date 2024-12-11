@@ -109,7 +109,7 @@ int DynamicHID_::RecvData(byte* data) {
   return count;
 }
 
-void DynamicHID_::RecvfromUsb() {
+void DynamicHID_::RecvfromUsb() {  
   if (usb_Available() > 0) {
     int len = USB_Recv(PID_ENDPOINT_OUT, &out_ffbdata, 64);
     if (len >= 0) {
