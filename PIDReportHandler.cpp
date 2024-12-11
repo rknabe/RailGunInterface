@@ -180,6 +180,8 @@ void PIDReportHandler::CreateNewEffect(USB_FFBReport_CreateNewEffect_Feature_Dat
 }*/
 
 void PIDReportHandler::UppackUsbData(uint8_t* data) {
+  Serial.print("reportId:");
+  Serial.println(data[0]);
   uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
   switch (data[0])             // reportID
   {

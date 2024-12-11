@@ -92,6 +92,8 @@ struct EffectParams {
   int32_t frictionPositionChange = 0;
 };*/
 
+void pressFire(bool doRecoil, bool setButton);
+
 class Joystick_ {
 private:
 
