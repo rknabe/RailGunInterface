@@ -1,9 +1,9 @@
-#pragma once
+#ifndef SETTINGS_h
+#define SETTINGS_h
+
 #include <Arduino.h>
 #include <EEPROM.h>
 #include "PIDReportType.h"
-
-#pragma once
 
 #define JOYSTICK_DEFAULT_AXIS_MINIMUM 0
 #define JOYSTICK_DEFAULT_AXIS_MAXIMUM 1023
@@ -31,3 +31,5 @@ public:
   void save(Settings settings);
   uint8_t calcChecksum();
 };
+
+#endif  // SETTINGS_h

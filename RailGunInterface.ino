@@ -58,6 +58,10 @@ int getButtonNumFromPin(int pin) {
   return 0;
 }
 
+bool releaseTrigger(void *) {
+  controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
+}
+
 bool setRecoilReleased(void *) {
   recoilEngaged = false;
   return false;
@@ -66,20 +70,19 @@ bool setRecoilReleased(void *) {
 bool releaseRecoil(void *) {
   if (recoilEngaged) {
     digitalWrite(RECOIL_RELAY_PIN, LOW);
-    controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
+    //controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
     sendUpdate = true;
     timer.in(RECOIL_MS, setRecoilReleased);
   }
   return false;
 }
 
-void engageRecoil() {
+void doRecoil() {
   if (!recoilEngaged) {
     recoilEngaged = true;
     if (controller.getAutoRecoil()) {
       digitalWrite(RECOIL_RELAY_PIN, HIGH);
     }
-    controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
     sendUpdate = true;
     timer.in(RECOIL_MS, releaseRecoil);
   }
@@ -90,7 +93,7 @@ void pressedCallback(uint8_t pinIn) {
   sendUpdate = true;
 
   if (pinIn == BTN_TRIGGER && controller.getAutoRecoil()) {
-    engageRecoil();
+    doRecoil();
   }
 }
 
@@ -104,7 +107,9 @@ void pressedDurationCallback(uint8_t pinIn, unsigned long duration) {
   if (pinIn == BTN_TRIGGER && duration >= controller.getTriggerHoldTime() && controller.getTriggerRepeatRate() > 0) {
     long now = millis();
     if (now - lastTriggerRepeat >= controller.getTriggerRepeatRate()) {
-      engageRecoil();
+      controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
+      doRecoil();
+      timer.in(RECOIL_MS, releaseTrigger);
       lastTriggerRepeat = now;
     }
   }
@@ -155,6 +160,8 @@ void loop() {
   sendUpdate = false;
   timer.tick();
 
+  processSerial();
+
   unsigned long now = millis();
   btnTrigger.process(now);
   btnLeft.process(now);
@@ -176,5 +183,22 @@ void loop() {
 
   if (sendUpdate) {
     controller.sendState();
+  }
+}
+
+//Serial port - commands and output.
+void processSerial() {
+
+  if (Serial.available()) {
+    char cmd[16];
+    int arg1 = -32768, arg2 = -32768, arg3 = -32768;
+    String line = Serial.readString();
+
+    line.toLowerCase();
+    sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
+
+    if (strcmp_P(cmd, PSTR("recoil")) == 0) {
+      doRecoil();
+    }
   }
 }

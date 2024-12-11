@@ -545,7 +545,6 @@ void Joystick_::saveSettings() {
 
 void Joystick_::loadDefaultSettings() {
   Serial.println("Loading default settings data");
-  Settings settings;
   loadSettings(eeprom.getDefaults());
 }
 
