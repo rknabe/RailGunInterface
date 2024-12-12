@@ -1,3 +1,4 @@
+#include "USBAPI.h"
 /*
   Joystick.cpp
 
@@ -462,6 +463,8 @@ Joystick_::Joystick_(
   _xAxis = 0;
   _yAxis = 0;
   _zAxis = 0;
+  ammoCount = 0;
+  useAmmoCount = false;
   _xAxisRotation = 0;
   _yAxisRotation = 0;
   _zAxisRotation = 0;
@@ -617,9 +620,11 @@ void Joystick_::processUsbCmd() {
 void Joystick_::end() {
 }
 
-void Joystick_::setAmmoCount(int count) {
+void Joystick_::setAmmoCount(int16_t count) {
   ammoCount = count;
-  useAmmoCount = (ammoCount > 0);
+  if (ammoCount > 0) {
+    useAmmoCount = true;
+  }
 }
 
 bool Joystick_::hasAmmo() {
@@ -801,6 +806,8 @@ void Joystick_::sendState() {
   // Set Axis Values
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS, _xAxis, _xAxisMinimum, _xAxisMaximum, &(data[index]));
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
+  //index += buildAndSet16BitValue(true, ammoCount, 0, 32767, 0, 32767, (data[index]));
+
   index += set16BitValue(ammoCount, &(data[index]));
   index += setBoolValue(useAmmoCount, &(data[index]));
 

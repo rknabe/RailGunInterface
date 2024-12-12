@@ -120,7 +120,7 @@ private:
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
   bool autoRecoil = true;
-  int ammoCount = 0;
+  int16_t ammoCount = 0;
   bool useAmmoCount = false;
   int16_t triggerRepeatRate = 100;
   int16_t triggerHoldTime = 1000;
@@ -305,8 +305,8 @@ public:
   bool getAutoRecoil();
   uint16_t getTriggerRepeatRate();
   uint16_t getTriggerHoldTime();
-  int getAmmoCount();
-  void setAmmoCount(int count);
+  int16_t getAmmoCount();
+  void setAmmoCount(int16_t count);
   bool hasAmmo();
   bool getUseAmmoCount();
   void setUseAmmoCount(bool flag);

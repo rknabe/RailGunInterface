@@ -9,7 +9,7 @@ const uint8_t buttonCount = 7;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
                      0, true, true, false,
                      false, false, false,
-                     false, false, false,
+                     true, false, false,
                      false, false);
 
 auto timer = timer_create_default();  // create a timer with default settings
@@ -190,18 +190,22 @@ void processSerial() {
 
   if (Serial.available()) {
     char cmd[16];
-    int arg1 = -32768, arg2 = -32768, arg3 = -32768;
+    int16_t arg1 = -32768, arg2 = -32768, arg3 = -32768;
     String line = Serial.readStringUntil('!');
     Serial.readBytes(&cmd[0], 1);  //read the ! or it will loop again
     line.toLowerCase();
     sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
 
+    Serial.println(cmd);
+
     if (strcmp_P(cmd, PSTR("recoil")) == 0) {
       if (arg1 == 1) {
         pressFire(true, false);
       }
-    } else if (strcmp_P(cmd, PSTR("setAmmoCount")) == 0) {
+    } else if (strcmp_P(cmd, PSTR("setammocount")) == 0) {
+      Serial.println(arg1);
       controller.setAmmoCount(arg1);
+      sendUpdate = true;
     }
   }
 }
