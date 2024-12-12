@@ -120,6 +120,8 @@ private:
   uint8_t _includeAxisFlags;
   uint8_t _includeSimulatorFlags;
   bool autoRecoil = true;
+  int ammoCount = 0;
+  bool useAmmoCount = false;
   int16_t triggerRepeatRate = 100;
   int16_t triggerHoldTime = 1000;
   int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
@@ -176,6 +178,7 @@ private:
   int32_t getEffectForce(volatile TEffectState& effect, Gains _gains, EffectParams _effect_params, uint8_t axis);*/
 protected:
   int set16BitValue(int16_t value, uint8_t dataLocation[]);
+  int setBoolValue(bool value, uint8_t dataLocation[]);
   int normalize(int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum);
   int buildAndSet16BitValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, int16_t actualMinimum, int16_t actualMaximum, uint8_t dataLocation[]);
   int buildAndSetAxisValue(bool includeAxis, int16_t axisValue, int16_t axisMinimum, int16_t axisMaximum, uint8_t dataLocation[]);
@@ -302,6 +305,11 @@ public:
   bool getAutoRecoil();
   uint16_t getTriggerRepeatRate();
   uint16_t getTriggerHoldTime();
+  int getAmmoCount();
+  void setAmmoCount(int count);
+  bool hasAmmo();
+  bool getUseAmmoCount();
+  void setUseAmmoCount(bool flag);
 };
 
 #endif  // !defined(_USING_DYNAMIC_HID)

@@ -18,7 +18,7 @@ typedef struct {
   bool autoRecoil;
   int16_t triggerRepeatRate;
   int16_t triggerHoldTime;
-} Settings;
+} Settings; //this total needs to match size given in PidDesciptor.h line 631, and size of Settings struct in Settings.h
 
 //all settings
 class SettingsEEPROM {

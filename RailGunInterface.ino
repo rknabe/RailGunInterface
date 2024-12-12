@@ -77,14 +77,14 @@ bool releaseFire(void *) {
 void pressFire(bool doRecoil, bool setButton) {
   if (!isFiring) {
     isFiring = true;
-    if (doRecoil) {
+    if (doRecoil && controller.hasAmmo()) {
       digitalWrite(RECOIL_RELAY_PIN, HIGH);
     }
     if (setButton) {
       controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
     }
     sendUpdate = true;
-    timer.in(RECOIL_MS, releaseFire);
+    timer.in(RECOIL_RELEASE_MS, releaseFire);
   }
 }
 
@@ -200,6 +200,8 @@ void processSerial() {
       if (arg1 == 1) {
         pressFire(true, false);
       }
+    } else if (strcmp_P(cmd, PSTR("setAmmoCount")) == 0) {
+      controller.setAmmoCount(arg1);
     }
   }
 }

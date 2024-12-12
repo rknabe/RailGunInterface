@@ -455,6 +455,8 @@ Joystick_::Joystick_(
   _hidReportSize += (_hatSwitchCount > 0);
   _hidReportSize += (axisCount * 2);
   _hidReportSize += (simulationCount * 2);
+  _hidReportSize += (sizeof(ammoCount));
+  _hidReportSize += (sizeof(useAmmoCount));
 
   // Initalize Joystick State
   _xAxis = 0;
@@ -615,6 +617,35 @@ void Joystick_::processUsbCmd() {
 void Joystick_::end() {
 }
 
+void Joystick_::setAmmoCount(int count) {
+  ammoCount = count;
+  useAmmoCount = (ammoCount > 0);
+}
+
+bool Joystick_::hasAmmo() {
+  if (useAmmoCount) {
+    if (ammoCount > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return true;
+  }
+}
+
+void Joystick_::setUseAmmoCount(boolean flag) {
+  useAmmoCount = flag;
+}
+
+bool Joystick_::getUseAmmoCount() {
+  return useAmmoCount;
+}
+
+int Joystick_::getAmmoCount() {
+  return ammoCount;
+}
+
 void Joystick_::setButton(uint8_t button, uint8_t value) {
   if (value == 0) {
     releaseButton(button);
@@ -703,6 +734,11 @@ int Joystick_::set16BitValue(int16_t value, uint8_t dataLocation[]) {
   return 2;
 }
 
+int Joystick_::setBoolValue(bool value, uint8_t dataLocation[]) {
+  dataLocation[0] = value;
+  return 1;
+}
+
 int Joystick_::normalize(int16_t value, int16_t physicalMinimum, int16_t physicalMaximum, int16_t logicalMinimum, int16_t logicalMaximum) {
   int16_t realMinimum = min(physicalMinimum, physicalMaximum);
   int16_t realMaximum = max(physicalMinimum, physicalMaximum);
@@ -765,6 +801,8 @@ void Joystick_::sendState() {
   // Set Axis Values
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS, _xAxis, _xAxisMinimum, _xAxisMaximum, &(data[index]));
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
+  index += set16BitValue(ammoCount, &(data[index]));
+  index += setBoolValue(useAmmoCount, &(data[index]));
 
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _xAxisRotation, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));
@@ -777,8 +815,6 @@ void Joystick_::sendState() {
   //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_ACCELERATOR, _accelerator, _acceleratorMinimum, _acceleratorMaximum, &(data[index]));
   //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_BRAKE, _brake, _brakeMinimum, _brakeMaximum, &(data[index]));
   //index += buildAndSetSimulationValue(_includeSimulatorFlags & JOYSTICK_INCLUDE_STEERING, _steering, _steeringMinimum, _steeringMaximum, &(data[index]));
-
-
 
   DynamicHID().SendReport(_hidReportId, data, _hidReportSize);
 }
