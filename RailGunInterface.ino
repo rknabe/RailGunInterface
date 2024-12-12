@@ -3,7 +3,7 @@
 #include <arduino-timer.h>
 
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
-#define SERIAL_BAUDRATE 115200
+#define SERIAL_BAUDRATE 9600
 
 const uint8_t buttonCount = 7;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -42,7 +42,8 @@ const int buttonPins[buttonCount] = {
 };
 
 unsigned long HOLD_MS = 1000;
-unsigned long RECOIL_MS = 62;
+unsigned long RECOIL_MS = 40;
+unsigned long RECOIL_RELEASE_MS = 40;
 bool isFiring = false;
 bool sendUpdate = false;
 int lastXAxisValue = -1;
@@ -57,7 +58,6 @@ int getButtonNumFromPin(int pin) {
   }
   return 0;
 }
-
 
 bool setRecoilReleased(void *) {
   isFiring = false;
@@ -118,7 +118,7 @@ void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
 
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
-  Serial.setTimeout(10);
+  Serial.setTimeout(20);
 
   controller.begin(false);
 
@@ -191,8 +191,8 @@ void processSerial() {
   if (Serial.available()) {
     char cmd[16];
     int arg1 = -32768, arg2 = -32768, arg3 = -32768;
-    String line = Serial.readStringUntil('~');
-
+    String line = Serial.readStringUntil('!');
+    Serial.readBytes(&cmd[0], 1);  //read the ! or it will loop again
     line.toLowerCase();
     sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
 
