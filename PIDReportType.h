@@ -1,3 +1,4 @@
+#include <stdint.h>
 /*
   Force Feedback Joystick
   USB HID descriptors for a force feedback joystick.
@@ -199,6 +200,12 @@ typedef struct {
   uint8_t command;
   int16_t arg[4];
 } USB_GUI_Command;
+
+typedef struct
+{
+  uint8_t reportId;
+  uint32_t guid;
+} Feature_Report_t;
 
 typedef struct {
   uint8_t command;

@@ -53,6 +53,7 @@ int DynamicHID_::getDescriptor(USBSetup& setup) {
 
   int total = 0;
   DynamicHIDSubDescriptor* node;
+
   for (node = rootNode; node; node = node->next) {
     int res = USB_SendControl(0, node->data, node->length);
     if (res == -1)
@@ -109,7 +110,7 @@ int DynamicHID_::RecvData(byte* data) {
   return count;
 }
 
-void DynamicHID_::RecvfromUsb() {  
+void DynamicHID_::RecvfromUsb() {
   if (usb_Available() > 0) {
     int len = USB_Recv(PID_ENDPOINT_OUT, &out_ffbdata, 64);
     if (len >= 0) {
@@ -147,6 +148,13 @@ bool DynamicHID_::GetReport(USBSetup& setup) {
       USB_SendControl(TRANSFER_RELEASE, &ans, sizeof(USB_FFBReport_PIDPool_Feature_Data_t));
       return (true);
     }
+    /*if (report_id == 7) {
+      Serial.println("feature");
+      char deviceType[10];
+      strcpy_P(&deviceType[1], PSTR(FIRMWARE_TYPE));
+      USB_SendControl(TRANSFER_RELEASE, &deviceType, 10);
+      return (true);
+    }*/
   }
   return (false);
 }

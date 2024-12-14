@@ -196,16 +196,21 @@ void processSerial() {
     line.toLowerCase();
     sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
 
-    Serial.println(cmd);
-
     if (strcmp_P(cmd, PSTR("recoil")) == 0) {
       if (arg1 == 1) {
         pressFire(true, false);
       }
     } else if (strcmp_P(cmd, PSTR("setammocount")) == 0) {
-      Serial.println(arg1);
       controller.setAmmoCount(arg1);
       sendUpdate = true;
+    }
+    //this help match the hid device to com port from host
+    else if (strcmp_P(cmd, PSTR("setuniqueid")) == 0) {
+      controller.setUniqueId(arg1);
+    }
+    //this help match the hid device to com port from host
+    else if (strcmp_P(cmd, PSTR("getuniqueid")) == 0) {
+      Serial.println(controller.getUniqueId());
     }
   }
 }

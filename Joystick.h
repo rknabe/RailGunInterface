@@ -122,6 +122,7 @@ private:
   bool autoRecoil = true;
   int16_t ammoCount = 0;
   bool useAmmoCount = false;
+  uint16_t uniqueId = 0;
   int16_t triggerRepeatRate = 100;
   int16_t triggerHoldTime = 1000;
   int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
@@ -310,6 +311,8 @@ public:
   bool hasAmmo();
   bool getUseAmmoCount();
   void setUseAmmoCount(bool flag);
+  void setUniqueId(uint16_t);
+  uint16_t getUniqueId();
 };
 
 #endif  // !defined(_USING_DYNAMIC_HID)

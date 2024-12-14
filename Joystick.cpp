@@ -556,6 +556,13 @@ void Joystick_::loadDefaultSettings() {
 void Joystick_::processUsbCmd() {
   USB_GUI_Command *usbCmd = &DynamicHID().pidReportHandler.usbCommand;
   if (usbCmd->command) {
+    /*Serial.print(usbCmd->command);
+    Serial.print(":");
+    Serial.print(usbCmd->arg[0]);
+    Serial.print(":");
+    Serial.print(usbCmd->arg[1]);
+    Serial.print(":");
+    Serial.println(usbCmd->arg[2]);*/
 
     //clear output report
     memset((void *)&USB_GUI_Report, 0, sizeof(USB_GUI_Report));
@@ -594,6 +601,9 @@ void Joystick_::processUsbCmd() {
         triggerHoldTime = usbCmd->arg[0];
         sendGuiReport(data);
         break;
+      case 6:  //set uniqueId, useful for matching com port to hid device
+        uniqueId = usbCmd->arg[0];
+        break;
       case 16:  //save settings to eeprom
         saveSettings();
         sendGuiReport(data);
@@ -622,9 +632,9 @@ void Joystick_::end() {
 
 void Joystick_::setAmmoCount(int16_t count) {
   ammoCount = count;
-  if (ammoCount > 0) {
-    useAmmoCount = true;
-  }
+  //if (ammoCount > 0) {
+  //  useAmmoCount = true;
+  //}
 }
 
 bool Joystick_::hasAmmo() {
@@ -645,6 +655,14 @@ void Joystick_::setUseAmmoCount(boolean flag) {
 
 bool Joystick_::getUseAmmoCount() {
   return useAmmoCount;
+}
+
+void Joystick_::setUniqueId(uint16_t id) {
+  uniqueId = id;
+}
+
+uint16_t Joystick_::getUniqueId() {
+  return uniqueId;
 }
 
 int Joystick_::getAmmoCount() {
