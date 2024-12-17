@@ -154,7 +154,6 @@ ISR(TIMER3_COMPA_vect) {
   controller.getUSBPID();
 }
 
-
 void loop() {
   sendUpdate = false;
   timer.tick();
@@ -166,14 +165,14 @@ void loop() {
   btnLeft.process(now);
   btnBottom.process(now);
 
-  const int currentXAxisValue = analogRead(AXIS_X_PIN);
+  const int currentXAxisValue = 1024 - analogRead(AXIS_X_PIN);
   if (abs(currentXAxisValue - lastXAxisValue) > 2) {
     controller.setXAxis(currentXAxisValue);
     lastXAxisValue = currentXAxisValue;
     sendUpdate = true;
   }
 
-  const int currentYAxisValue = analogRead(AXIS_Y_PIN);
+  const int currentYAxisValue = 1024 - analogRead(AXIS_Y_PIN);
   if (abs(currentYAxisValue - lastYAxisValue) > 2) {
     controller.setYAxis(currentYAxisValue);
     lastYAxisValue = currentYAxisValue;
