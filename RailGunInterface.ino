@@ -2,10 +2,13 @@
 #include "InputDebounce.h"
 #include <arduino-timer.h>
 
+#include "U8glib.h"
+U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_NONE);  // I2C / TWI
+
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
 #define SERIAL_BAUDRATE 9600
 
-const uint8_t buttonCount = 7;
+const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
                      0, true, true, false,
                      false, false, false,
@@ -13,19 +16,19 @@ Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCo
                      false, false);
 
 auto timer = timer_create_default();  // create a timer with default settings
+boolean screenReady = true;
+uint16_t lastAmmoCount = -1;
 
 static InputDebounce btnTrigger;
 static InputDebounce btnLeft;
 static InputDebounce btnBottom;
 
 const int LITE_PIN = 0;
-const int BTN_TRIGGER = 2;
-const int BTN_LEFT = 3;
-const int BTN_BOTTOM = 4;
-const int BTN_D_PIN = 5;
-const int BTN_E_PIN = 6;
-const int BTN_F_PIN = 7;
-const int BTN_K_PIN = 8;
+const int BTN_TRIGGER = 4;
+const int BTN_LEFT = 5;
+const int BTN_BOTTOM = 6;
+const int START_PIN = 7;
+const int COIN_PIN = 8;
 const int RECOIL_RELAY_PIN = 9;
 const int LIGHT_RELAY_PIN = 10;
 const int AXIS_X_PIN = A0;
@@ -35,11 +38,10 @@ const int buttonPins[buttonCount] = {
   BTN_TRIGGER,
   BTN_LEFT,
   BTN_BOTTOM,
-  BTN_D_PIN,
-  BTN_E_PIN,
-  BTN_F_PIN,
-  BTN_K_PIN
+  START_PIN,
+  COIN_PIN
 };
+
 
 unsigned long HOLD_MS = 1000;
 unsigned long RECOIL_MS = 40;
@@ -116,6 +118,10 @@ void pressedDurationCallback(uint8_t pinIn, unsigned long duration) {
 void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
 }
 
+bool clearScreen(void *) {
+  screenReady = true;
+}
+
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
   Serial.setTimeout(20);
@@ -148,10 +154,26 @@ void setup() {
   TCCR3B |= (1 << CS31);   //set CS11 1(8-fold Prescaler)
   TIMSK3 |= (1 << OCIE3A);
   sei();
+
+  display.firstPage();
+  do {
+    display.drawBitmapP(0, 0, 128, 14, logo);
+  } while (display.nextPage());
+  delay(2000);
 }
 
 ISR(TIMER3_COMPA_vect) {
   controller.getUSBPID();
+}
+
+void draw(char *str) {
+  // graphic commands to redraw the complete screen should be placed here
+  display.setFont(u8g_font_helvB24n);
+  //display.setPrintPos(30, 27);
+  display.setScale2x2();
+  //display.print(str);
+  display.drawStr180(36, 3, str);
+  display.drawBox(50, 0, 20, 3);
 }
 
 void loop() {
@@ -181,6 +203,20 @@ void loop() {
 
   if (sendUpdate) {
     controller.sendState();
+  }
+
+  if (screenReady) {
+    if (lastAmmoCount != controller.getAmmoCount()) {
+      char ammo[3];
+      sprintf(ammo, "%02d", controller.getAmmoCount());
+      // picture loop
+      display.firstPage();
+      do {
+        draw(ammo);
+      } while (display.nextPage());
+      //display.printFixedN(10, 4, ammo, STYLE_NORMAL, FONT_SIZE_4X);
+    }
+    lastAmmoCount = controller.getAmmoCount();
   }
 }
 
