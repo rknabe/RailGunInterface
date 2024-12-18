@@ -154,12 +154,6 @@ void setup() {
   TCCR3B |= (1 << CS31);   //set CS11 1(8-fold Prescaler)
   TIMSK3 |= (1 << OCIE3A);
   sei();
-
-  display.firstPage();
-  do {
-    display.drawBitmapP(0, 0, 128, 14, logo);
-  } while (display.nextPage());
-  delay(2000);
 }
 
 ISR(TIMER3_COMPA_vect) {
