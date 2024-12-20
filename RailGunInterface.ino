@@ -1,8 +1,8 @@
 #include "Joystick.h"
 #include "InputDebounce.h"
 #include <arduino-timer.h>
-
 #include "U8glib.h"
+
 U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_NONE);  // I2C / TWI
 
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
@@ -23,7 +23,6 @@ static InputDebounce btnTrigger;
 static InputDebounce btnLeft;
 static InputDebounce btnBottom;
 
-const int LITE_PIN = 0;
 const int BTN_TRIGGER = 4;
 const int BTN_LEFT = 5;
 const int BTN_BOTTOM = 6;
@@ -41,7 +40,6 @@ const int buttonPins[buttonCount] = {
   START_PIN,
   COIN_PIN
 };
-
 
 unsigned long HOLD_MS = 1000;
 unsigned long RECOIL_MS = 40;
@@ -223,7 +221,7 @@ void processSerial() {
     String line = Serial.readStringUntil('!');
     Serial.readBytes(&cmd[0], 1);  //read the ! or it will loop again
     line.toLowerCase();
-    sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
+    sscanf(line.c_str(), PSTR("%s %d %d %d"), cmd, &arg1, &arg2, &arg3);
 
     if (strcmp_P(cmd, PSTR("recoil")) == 0) {
       if (arg1 == 1) {

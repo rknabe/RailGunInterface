@@ -30,7 +30,7 @@
 
 #define MAX_EFFECTS 14
 #define MAX_FFB_AXIS_COUNT 0x02
-#define SIZE_EFFECT sizeof(TEffectState)
+//#define SIZE_EFFECT sizeof(TEffectState)
 #define MEMORY_SIZE (uint16_t)(MAX_EFFECTS * SIZE_EFFECT)
 #define TO_LT_END_16(x) ((x << 8) & 0xFF00) | ((x >> 8) & 0x00FF)
 #define FIRMWARE_VERSION "1.0.0"
@@ -134,7 +134,7 @@ typedef struct  //FFB: Set EffectOperation Output Report
   uint8_t effectBlockIndex;  // 1..40
   uint8_t operation;         // 1=Start, 2=StartSolo, 3=Stop
   uint8_t loopCount;
-} USB_FFBReport_EffectOperation_Output_Data_t;*/
+} USB_FFBReport_EffectOperation_Output_Data_t;
 
 typedef struct  //FFB: Block Free Output Report
 {
@@ -193,7 +193,7 @@ typedef struct {
   uint16_t positiveSaturation;  // -128..127
   uint16_t negativeSaturation;  // -128..127
   uint16_t deadBand;            // 0..255
-} TEffectCondition;
+} TEffectCondition;*/
 
 typedef struct {
   uint8_t reportId;
@@ -241,7 +241,7 @@ typedef struct {
 //#define FRICTION_FORCE 0xFF
 //#define INERTIA_DEADBAND 0x30
 //#define FRICTION_DEADBAND 0x30
-
+/*
 typedef struct {
   volatile uint8_t state;  // see constants <MEffectState_*>
   uint8_t effectType;      //
@@ -266,5 +266,5 @@ typedef struct {
   uint16_t period;  // 0..32767 ms
   uint16_t duration, elapsedTime;
   uint64_t startTime;
-} TEffectState;
+} TEffectState;*/
 #endif

@@ -242,11 +242,11 @@ uint8_t* PIDReportHandler::getPIDPool() {
   pidPoolReport.memoryManagement = 3;
   return (uint8_t*)&pidPoolReport;
 }*/
-
+/*
 uint8_t* PIDReportHandler::getPIDBlockLoad() {
   return (uint8_t*)&pidBlockLoad;
-}
-
+}*/
+/*
 uint8_t* PIDReportHandler::getPIDStatus() {
   return (uint8_t*)&pidState;
-}
+}*/

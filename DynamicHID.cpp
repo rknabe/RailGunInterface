@@ -134,18 +134,18 @@ bool DynamicHID_::GetReport(USBSetup& setup) {
   if (report_type == DYNAMIC_HID_REPORT_TYPE_FEATURE) {
     if ((report_id == 6))  // && (gNewEffectBlockLoad.reportId==6))
     {
-      _delay_us(500);
-      USB_SendControl(TRANSFER_RELEASE, pidReportHandler.getPIDBlockLoad(), sizeof(USB_FFBReport_PIDBlockLoad_Feature_Data_t));
-      pidReportHandler.pidBlockLoad.reportId = 0;
+      //_delay_us(500);
+      //USB_SendControl(TRANSFER_RELEASE, pidReportHandler.getPIDBlockLoad(), sizeof(USB_FFBReport_PIDBlockLoad_Feature_Data_t));
+      //pidReportHandler.pidBlockLoad.reportId = 0;
       return (true);
     }
     if (report_id == 7) {
-      USB_FFBReport_PIDPool_Feature_Data_t ans;
-      ans.reportId = report_id;
-      ans.ramPoolSize = 0xffff;
-      ans.maxSimultaneousEffects = MAX_EFFECTS;
-      ans.memoryManagement = 3;
-      USB_SendControl(TRANSFER_RELEASE, &ans, sizeof(USB_FFBReport_PIDPool_Feature_Data_t));
+     // USB_FFBReport_PIDPool_Feature_Data_t ans;
+     // ans.reportId = report_id;
+    //  ans.ramPoolSize = 0xffff;
+     // ans.maxSimultaneousEffects = MAX_EFFECTS;
+    //  ans.memoryManagement = 3;
+     // USB_SendControl(TRANSFER_RELEASE, &ans, sizeof(USB_FFBReport_PIDPool_Feature_Data_t));
       return (true);
     }
     /*if (report_id == 7) {
@@ -173,8 +173,8 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
       return true;
     }
     if (report_id == 5) {
-      USB_FFBReport_CreateNewEffect_Feature_Data_t ans;
-      USB_RecvControl(&ans, sizeof(USB_FFBReport_CreateNewEffect_Feature_Data_t));
+      //USB_FFBReport_CreateNewEffect_Feature_Data_t ans;
+      //USB_RecvControl(&ans, sizeof(USB_FFBReport_CreateNewEffect_Feature_Data_t));
       //pidReportHandler.CreateNewEffect(&ans);
     }
     return true;
