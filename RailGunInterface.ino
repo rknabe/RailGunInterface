@@ -221,7 +221,7 @@ void processSerial() {
     String line = Serial.readStringUntil('!');
     Serial.readBytes(&cmd[0], 1);  //read the ! or it will loop again
     line.toLowerCase();
-    sscanf(line.c_str(), PSTR("%s %d %d %d"), cmd, &arg1, &arg2, &arg3);
+    sscanf(line.c_str(), "%s %d %d %d", cmd, &arg1, &arg2, &arg3);
 
     if (strcmp_P(cmd, PSTR("recoil")) == 0) {
       if (arg1 == 1) {
