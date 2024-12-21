@@ -3,7 +3,7 @@
 #include <arduino-timer.h>
 #include "U8glib.h"
 
-U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_NONE);  // I2C / TWI
+U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_DEV_0);
 
 #define BUTTON_DEBOUNCE_DELAY 50  //[ms]
 #define SERIAL_BAUDRATE 9600
@@ -16,7 +16,7 @@ Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCo
                      false, false);
 
 auto timer = timer_create_default();  // create a timer with default settings
-boolean screenReady = true;
+boolean screenReady = false;
 uint16_t lastAmmoCount = -1;
 
 static InputDebounce btnTrigger;
@@ -68,6 +68,7 @@ bool releaseFire(void *) {
   if (isFiring) {
     digitalWrite(RECOIL_RELAY_PIN, LOW);
     controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
+    digitalWrite(LIGHT_RELAY_PIN, LOW);
     sendUpdate = true;
     timer.in(RECOIL_MS, setRecoilReleased);
   }
@@ -82,6 +83,7 @@ void pressFire(bool doRecoil, bool setButton) {
     }
     if (setButton) {
       controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
+      digitalWrite(LIGHT_RELAY_PIN, HIGH);
     }
     sendUpdate = true;
     timer.in(RECOIL_RELEASE_MS, releaseFire);
@@ -152,6 +154,12 @@ void setup() {
   TCCR3B |= (1 << CS31);   //set CS11 1(8-fold Prescaler)
   TIMSK3 |= (1 << OCIE3A);
   sei();
+
+  display.firstPage();
+  do {
+    display.drawXBM(32, 16, 64, 32, logo);
+  } while (display.nextPage());
+  timer.in(3000, clearScreen);
 }
 
 ISR(TIMER3_COMPA_vect) {
@@ -161,9 +169,7 @@ ISR(TIMER3_COMPA_vect) {
 void draw(char *str) {
   // graphic commands to redraw the complete screen should be placed here
   display.setFont(u8g_font_helvB24n);
-  //display.setPrintPos(30, 27);
   display.setScale2x2();
-  //display.print(str);
   display.drawStr180(36, 3, str);
   display.drawBox(50, 0, 20, 3);
 }
