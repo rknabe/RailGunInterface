@@ -121,6 +121,7 @@ private:
   uint8_t _includeSimulatorFlags;
   bool autoRecoil = true;
   int16_t ammoCount = 0;
+  int16_t health = 0;
   bool useAmmoCount = false;
   uint16_t uniqueId = 0;
   int16_t triggerRepeatRate = 100;
@@ -307,7 +308,9 @@ public:
   uint16_t getTriggerRepeatRate();
   uint16_t getTriggerHoldTime();
   int16_t getAmmoCount();
-  void setAmmoCount(int16_t count);
+  void setAmmoCount(int16_t value);
+  int16_t getHealth();
+  void setHealth(int16_t value);
   bool hasAmmo();
   bool getUseAmmoCount();
   void setUseAmmoCount(bool flag);

@@ -637,6 +637,18 @@ void Joystick_::setAmmoCount(int16_t count) {
   //}
 }
 
+int Joystick_::getAmmoCount() {
+  return ammoCount;
+}
+
+void Joystick_::setHealth(int16_t value) {
+  health = value;
+}
+
+int Joystick_::getHealth() {
+  return health;
+}
+
 bool Joystick_::hasAmmo() {
   if (useAmmoCount) {
     if (ammoCount > 0) {
@@ -663,10 +675,6 @@ void Joystick_::setUniqueId(uint16_t id) {
 
 uint16_t Joystick_::getUniqueId() {
   return uniqueId;
-}
-
-int Joystick_::getAmmoCount() {
-  return ammoCount;
 }
 
 void Joystick_::setButton(uint8_t button, uint8_t value) {
