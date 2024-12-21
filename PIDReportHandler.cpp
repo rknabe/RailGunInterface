@@ -9,6 +9,59 @@ PIDReportHandler::~PIDReportHandler() {
   //FreeAllEffects();
 }
 
+void PIDReportHandler::UppackUsbData(uint8_t* data) {
+  uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
+  switch (data[0])             // reportID
+  {
+    /*case 1:
+      SetEffect((USB_FFBReport_SetEffect_Output_Data_t*)data);
+      break;
+    case 2:
+      SetEnvelope((USB_FFBReport_SetEnvelope_Output_Data_t*)data, &g_EffectStates[effectId]);
+      break;
+    case 3:
+      SetCondition((USB_FFBReport_SetCondition_Output_Data_t*)data, &g_EffectStates[effectId]);
+      break;
+    case 4:
+      SetPeriodic((USB_FFBReport_SetPeriodic_Output_Data_t*)data, &g_EffectStates[effectId]);
+      break;
+    case 5:
+      SetConstantForce((USB_FFBReport_SetConstantForce_Output_Data_t*)data, &g_EffectStates[effectId]);
+      break;
+    case 6:
+      SetRampForce((USB_FFBReport_SetRampForce_Output_Data_t*)data, &g_EffectStates[effectId]);
+      break;
+    case 7:
+      SetCustomForceData((USB_FFBReport_SetCustomForceData_Output_Data_t*)data);
+      break;
+    case 8:
+      SetDownloadForceSample((USB_FFBReport_SetDownloadForceSample_Output_Data_t*)data);
+      break;
+    case 9:
+      break;
+    case 10:
+      EffectOperation((USB_FFBReport_EffectOperation_Output_Data_t*)data);
+      break;
+    case 11:
+      BlockFree((USB_FFBReport_BlockFree_Output_Data_t*)data);
+      break;
+    case 12:
+      DeviceControl((USB_FFBReport_DeviceControl_Output_Data_t*)data);
+      break;
+    case 13:
+      DeviceGain((USB_FFBReport_DeviceGain_Output_Data_t*)data);
+      break;
+    case 14:
+      SetCustomForce((USB_FFBReport_SetCustomForce_Output_Data_t*)data);
+      break;*/
+    case 15:
+      usbCommand = *((USB_GUI_Command*)data);
+      break;
+    default:
+      break;
+  }
+}
+
 /*
 uint8_t PIDReportHandler::GetNextFreeEffect(void) {
   if (nextEID == MAX_EFFECTS)
@@ -179,58 +232,6 @@ void PIDReportHandler::CreateNewEffect(USB_FFBReport_CreateNewEffect_Feature_Dat
   }
 }*/
 
-void PIDReportHandler::UppackUsbData(uint8_t* data) {
-  uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
-  switch (data[0])             // reportID
-  {
-    /*case 1:
-      SetEffect((USB_FFBReport_SetEffect_Output_Data_t*)data);
-      break;
-    case 2:
-      SetEnvelope((USB_FFBReport_SetEnvelope_Output_Data_t*)data, &g_EffectStates[effectId]);
-      break;
-    case 3:
-      SetCondition((USB_FFBReport_SetCondition_Output_Data_t*)data, &g_EffectStates[effectId]);
-      break;
-    case 4:
-      SetPeriodic((USB_FFBReport_SetPeriodic_Output_Data_t*)data, &g_EffectStates[effectId]);
-      break;
-    case 5:
-      SetConstantForce((USB_FFBReport_SetConstantForce_Output_Data_t*)data, &g_EffectStates[effectId]);
-      break;
-    case 6:
-      SetRampForce((USB_FFBReport_SetRampForce_Output_Data_t*)data, &g_EffectStates[effectId]);
-      break;
-    case 7:
-      SetCustomForceData((USB_FFBReport_SetCustomForceData_Output_Data_t*)data);
-      break;
-    case 8:
-      SetDownloadForceSample((USB_FFBReport_SetDownloadForceSample_Output_Data_t*)data);
-      break;
-    case 9:
-      break;
-    case 10:
-      EffectOperation((USB_FFBReport_EffectOperation_Output_Data_t*)data);
-      break;
-    case 11:
-      BlockFree((USB_FFBReport_BlockFree_Output_Data_t*)data);
-      break;
-    case 12:
-      DeviceControl((USB_FFBReport_DeviceControl_Output_Data_t*)data);
-      break;
-    case 13:
-      DeviceGain((USB_FFBReport_DeviceGain_Output_Data_t*)data);
-      break;
-    case 14:
-      SetCustomForce((USB_FFBReport_SetCustomForce_Output_Data_t*)data);
-      break;*/
-    case 15:
-      usbCommand = *((USB_GUI_Command*)data);
-      break;
-    default:
-      break;
-  }
-}
 
 /*
 uint8_t* PIDReportHandler::getPIDPool() {

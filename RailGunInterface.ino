@@ -20,12 +20,14 @@ auto timer = timer_create_default();  // create a timer with default settings
 static InputDebounce btnTrigger;
 static InputDebounce btnLeft;
 static InputDebounce btnBottom;
+static InputDebounce btnStart;
+static InputDebounce btnCoin;
 
 const int BTN_TRIGGER = 4;
 const int BTN_LEFT = 5;
 const int BTN_BOTTOM = 6;
-const int START_PIN = 7;
-const int COIN_PIN = 8;
+const int BTN_START = 7;
+const int BTN_COIN = 8;
 const int RECOIL_RELAY_PIN = 9;
 const int LIGHT_RELAY_PIN = 10;
 const int AXIS_X_PIN = A0;
@@ -35,11 +37,10 @@ const int buttonPins[buttonCount] = {
   BTN_TRIGGER,
   BTN_LEFT,
   BTN_BOTTOM,
-  START_PIN,
-  COIN_PIN
+  BTN_START,
+  BTN_COIN
 };
 
-unsigned long HOLD_MS = 1000;
 unsigned long RECOIL_MS = 40;
 unsigned long RECOIL_RELEASE_MS = 40;
 bool isFiring = false;
@@ -68,6 +69,12 @@ void setup() {
   btnBottom.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
   btnBottom.setup(BTN_BOTTOM, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
 
+  btnStart.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
+  btnStart.setup(BTN_START, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
+
+  btnCoin.registerCallbacks(pressedCallback, releasedCallback, pressedDurationCallback, releasedDurationCallback);
+  btnCoin.setup(BTN_COIN, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
+
   pinMode(RECOIL_RELAY_PIN, OUTPUT);
   digitalWrite(RECOIL_RELAY_PIN, LOW);
 
@@ -86,12 +93,11 @@ void setup() {
 
   display.firstPage();
   do {
-    display.drawXBMP(32, 16, 64, 32, logo);
+    display.drawXBMP(32, 20, logo_width, logo_height, logo);
   } while (display.nextPage());
   timer.in(2000, clearDisplay);
 
-  display.setFont(u8g_font_helvB24n);
-  display.setScale2x2();
+  display.setFont(u8g_font_fub49n);
 }
 
 ISR(TIMER3_COMPA_vect) {
@@ -175,13 +181,15 @@ void updateDisplayStats() {
     if (lastAmmoCount != controller.getAmmoCount() || lastHealth != controller.getHealth()) {
       char ammoStr[3];
       sprintf(ammoStr, "%02d", controller.getAmmoCount());
-      int16_t pct = 0.32 * min(controller.getHealth(), 100);  //max height 64 at 100%
+      int16_t pct = 0.50 * min(controller.getHealth(), 100);  //max height 64 at 100%
       pct = max(pct, 1);                                      //min of 1
       // picture loop
       display.firstPage();
       do {
-        display.drawStr180(40, 3, ammoStr);
-        display.drawBox(45, 0, 20, pct);
+        display.drawXBMP(18, 54, bullet_width, bullet_height, bullet);
+        display.drawStr180(80, 0, ammoStr);
+        display.drawXBMP(88, 0, health_width, health_height, health);
+        display.drawBox(93, 4, 22, pct);
       } while (display.nextPage());
     }
     lastAmmoCount = controller.getAmmoCount();
@@ -199,6 +207,8 @@ void loop() {
   btnTrigger.process(now);
   btnLeft.process(now);
   btnBottom.process(now);
+  btnStart.process(now);
+  btnCoin.process(now);
 
   const int currentXAxisValue = 1024 - analogRead(AXIS_X_PIN);
   if (abs(currentXAxisValue - lastXAxisValue) > 2) {

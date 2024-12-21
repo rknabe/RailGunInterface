@@ -58,7 +58,7 @@
 #define DIRECTION_ENABLE 0x04
 #define X_AXIS_ENABLE 0x01
 #define Y_AXIS_ENABLE 0x02
-#define FORCE_FEEDBACK_MAXGAIN 100
+//#define FORCE_FEEDBACK_MAXGAIN 100
 //#define DEG_TO_RAD              ((float)((float)3.14159265359 / 180.0))
 
 /*
@@ -125,7 +125,7 @@ private:
   bool useAmmoCount = false;
   uint16_t uniqueId = 0;
   int16_t triggerRepeatRate = 100;
-  int16_t triggerHoldTime = 1000;
+  int16_t triggerHoldTime = 500;
   int16_t _xAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //14;
   int16_t _xAxisMaximum = JOYSTICK_DEFAULT_AXIS_MAXIMUM;  //932;
   int16_t _yAxisMinimum = JOYSTICK_DEFAULT_AXIS_MINIMUM;  //91;
