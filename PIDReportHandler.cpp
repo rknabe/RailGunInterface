@@ -10,7 +10,7 @@ PIDReportHandler::~PIDReportHandler() {
 }
 
 void PIDReportHandler::UppackUsbData(uint8_t* data) {
-  uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
+  //uint8_t effectId = data[1];  // effectBlockIndex is always the second byte.
   switch (data[0])             // reportID
   {
     /*case 1:

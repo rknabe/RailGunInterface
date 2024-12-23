@@ -34,8 +34,8 @@ boolean screenReady = false;
 int lastXAxisValue = -1;
 int lastYAxisValue = -1;
 unsigned long lastTriggerRepeat = 0;
-uint16_t lastAmmoCount = -1;
-uint16_t lastHealth = 0;
+int16_t lastAmmoCount = -1;
+int16_t lastHealth = 0;
 
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
@@ -159,6 +159,7 @@ void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
 
 bool clearDisplay(void *) {
   screenReady = true;
+  return true;
 }
 
 void updateDisplayStats() {
