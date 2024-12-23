@@ -58,39 +58,6 @@
 #define DIRECTION_ENABLE 0x04
 #define X_AXIS_ENABLE 0x01
 #define Y_AXIS_ENABLE 0x02
-//#define FORCE_FEEDBACK_MAXGAIN 100
-//#define DEG_TO_RAD              ((float)((float)3.14159265359 / 180.0))
-
-/*
-struct Gains {
-  uint8_t totalGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t constantGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t rampGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t squareGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t sineGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t triangleGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t sawtoothdownGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t sawtoothupGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t springGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t damperGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t inertiaGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t frictionGain = FORCE_FEEDBACK_MAXGAIN;
-  uint8_t customGain = FORCE_FEEDBACK_MAXGAIN;
-};
-
-struct EffectParams {
-  int32_t springMaxPosition = 0;
-  int32_t springPosition = 0;
-
-  int32_t damperMaxVelocity = 0;
-  int32_t damperVelocity = 0;
-
-  int32_t inertiaMaxAcceleration = 0;
-  int32_t inertiaAcceleration = 0;
-
-  int32_t frictionMaxPositionChange = 0;
-  int32_t frictionPositionChange = 0;
-};*/
 
 void pressFire(bool doRecoil, bool setButton);
 
@@ -122,6 +89,7 @@ private:
   bool autoRecoil = true;
   int16_t ammoCount = 0;
   int16_t health = 0;
+  int16_t maxHealth = 100;
   bool useAmmoCount = false;
   uint16_t uniqueId = 0;
   int16_t triggerRepeatRate = 100;
@@ -152,32 +120,9 @@ private:
   uint8_t _hidReportId;
   uint8_t _hidReportSize;
 
-  //force feedback gain
-  //Gains* m_gains;
-
-  //force feedback effect params
-  //EffectParams* m_effect_params;
-
   GUI_Report USB_GUI_Report;
   SettingsEEPROM eeprom;
 
-  //lock data
-  bool is_calculating_force = true;
-
-  ///force calculate funtion
-  /*float NormalizeRange(int32_t x, int32_t maxValue);
-  int32_t ApplyEnvelope(volatile TEffectState& effect, int32_t value);
-  int32_t ApplyGain(int16_t value, uint8_t gain);
-  int32_t ConstantForceCalculator(volatile TEffectState& effect);
-  int32_t RampForceCalculator(volatile TEffectState& effect);
-  int32_t SquareForceCalculator(volatile TEffectState& effect);
-  int32_t SinForceCalculator(volatile TEffectState& effect);
-  int32_t TriangleForceCalculator(volatile TEffectState& effect);
-  int32_t SawtoothDownForceCalculator(volatile TEffectState& effect);
-  int32_t SawtoothUpForceCalculator(volatile TEffectState& effect);
-  int32_t ConditionForceCalculator(volatile TEffectState& effect, float metric, uint8_t axis);
-  void forceCalculator(int32_t* forces);
-  int32_t getEffectForce(volatile TEffectState& effect, Gains _gains, EffectParams _effect_params, uint8_t axis);*/
 protected:
   int set16BitValue(int16_t value, uint8_t dataLocation[]);
   int setBoolValue(bool value, uint8_t dataLocation[]);
@@ -278,27 +223,6 @@ public:
   // get USB PID data
   void getUSBPID();
 
-  //force feedback Interfaces
-  /*
-  void getForce(int32_t* forces);
-  //set gain functions
-  int8_t setGains(Gains* _gains) {
-    if (_gains != nullptr) {
-      //it should be added some limition here,but im so tired,it's 2:24 A.M now!
-      m_gains = _gains;
-      return 0;
-    }
-    return -1;
-  };
-  //set effect params funtions
-  int8_t setEffectParams(EffectParams* _effect_params) {
-    if (_effect_params != nullptr) {
-      m_effect_params = _effect_params;
-      return 0;
-    }
-    return -1;
-  };*/
-
   void processUsbCmd();
   void loadSettings();
   void saveSettings();
@@ -311,6 +235,8 @@ public:
   void setAmmoCount(int16_t value);
   int16_t getHealth();
   void setHealth(int16_t value);
+  int16_t getMaxHealth();
+  void setMaxHealth(int16_t value);
   bool hasAmmo();
   bool getUseAmmoCount();
   void setUseAmmoCount(bool flag);

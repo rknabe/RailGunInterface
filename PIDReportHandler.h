@@ -8,13 +8,13 @@ public:
   PIDReportHandler();
   ~PIDReportHandler();
   // Effect management
-  volatile uint8_t nextEID;  // FFP effect indexes starts from 1
+  //volatile uint8_t nextEID;  // FFP effect indexes starts from 1
   //volatile TEffectState g_EffectStates[MAX_EFFECTS + 1];
-  volatile uint8_t devicePaused;
+  //volatile uint8_t devicePaused;
   //variables for storing previous values
-  volatile int32_t inertiaT = 0;
-  volatile int16_t oldSpeed = 0;
-  volatile int16_t oldAxisPosition = 0;
+  //volatile int32_t inertiaT = 0;
+  //volatile int16_t oldSpeed = 0;
+  //volatile int16_t oldAxisPosition = 0;
   //volatile USB_FFBReport_PIDStatus_Input_Data_t pidState = { 2, 30, 0 };
   //volatile USB_FFBReport_PIDBlockLoad_Feature_Data_t pidBlockLoad;
   //volatile USB_FFBReport_PIDPool_Feature_Data_t pidPoolReport;

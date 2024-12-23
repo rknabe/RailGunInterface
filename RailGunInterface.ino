@@ -5,9 +5,6 @@
 
 U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_DEV_0);
 
-#define BUTTON_DEBOUNCE_DELAY 50  //[ms]
-#define SERIAL_BAUDRATE 9600
-
 const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
                      0, true, true, false,
@@ -23,16 +20,6 @@ static InputDebounce btnBottom;
 static InputDebounce btnStart;
 static InputDebounce btnCoin;
 
-const int BTN_TRIGGER = 4;
-const int BTN_LEFT = 5;
-const int BTN_BOTTOM = 6;
-const int BTN_START = 7;
-const int BTN_COIN = 8;
-const int RECOIL_RELAY_PIN = 9;
-const int LIGHT_RELAY_PIN = 10;
-const int AXIS_X_PIN = A0;
-const int AXIS_Y_PIN = A1;
-
 const int buttonPins[buttonCount] = {
   BTN_TRIGGER,
   BTN_LEFT,
@@ -41,8 +28,6 @@ const int buttonPins[buttonCount] = {
   BTN_COIN
 };
 
-unsigned long RECOIL_MS = 40;
-unsigned long RECOIL_RELEASE_MS = 40;
 bool isFiring = false;
 bool sendUpdate = false;
 boolean screenReady = false;
@@ -181,8 +166,8 @@ void updateDisplayStats() {
     if (lastAmmoCount != controller.getAmmoCount() || lastHealth != controller.getHealth()) {
       char ammoStr[3];
       sprintf(ammoStr, "%02d", controller.getAmmoCount());
-      int16_t pct = 0.50 * min(controller.getHealth(), 100);  //max height 64 at 100%
-      pct = max(pct, 1);                                      //min of 1
+      int16_t pct = 0.50 * min(((float)controller.getHealth() / (float)controller.getMaxHealth()) * 100.00, 100.0);  //max height 64 at 100%
+      pct = max(pct, 1);                                                                                             //min of 1
       // picture loop
       display.firstPage();
       do {
@@ -254,6 +239,9 @@ void processSerial() {
       sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("sethealth")) == 0) {
       controller.setHealth(arg1);
+      sendUpdate = true;
+    } else if (strcmp_P(cmd, PSTR("setmaxhealth")) == 0) {
+      controller.setMaxHealth(arg1);
       sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("setuniqueid")) == 0) {
       //this help match the hid device to com port from host

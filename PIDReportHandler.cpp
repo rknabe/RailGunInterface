@@ -1,8 +1,8 @@
 #include "PIDReportHandler.h"
 
 PIDReportHandler::PIDReportHandler() {
-  nextEID = 1;
-  devicePaused = 0;
+  //nextEID = 1;
+  // devicePaused = 0;
 }
 
 PIDReportHandler::~PIDReportHandler() {

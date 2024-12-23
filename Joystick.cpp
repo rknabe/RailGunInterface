@@ -464,6 +464,7 @@ Joystick_::Joystick_(
   _yAxis = 0;
   _zAxis = 0;
   ammoCount = 0;
+  maxHealth = 100;
   useAmmoCount = false;
   _xAxisRotation = 0;
   _yAxisRotation = 0;
@@ -637,7 +638,7 @@ void Joystick_::setAmmoCount(int16_t count) {
   //}
 }
 
-int Joystick_::getAmmoCount() {
+int16_t Joystick_::getAmmoCount() {
   return ammoCount;
 }
 
@@ -645,8 +646,16 @@ void Joystick_::setHealth(int16_t value) {
   health = value;
 }
 
-int Joystick_::getHealth() {
+int16_t Joystick_::getHealth() {
   return health;
+}
+
+void Joystick_::setMaxHealth(int16_t value) {
+  maxHealth = value;
+}
+
+int16_t Joystick_::getMaxHealth() {
+  return max(maxHealth, 1);
 }
 
 bool Joystick_::hasAmmo() {
