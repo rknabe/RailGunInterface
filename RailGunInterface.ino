@@ -3,7 +3,7 @@
 #include <arduino-timer.h>
 #include "U8glib.h"
 
-U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_DEV_0);
+U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_FAST);
 
 const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -165,6 +165,10 @@ bool clearDisplay(void *) {
 void updateDisplayStats() {
   if (screenReady) {
     if (lastAmmoCount != controller.getAmmoCount() || lastHealth != controller.getHealth()) {
+      unsigned long now = millis();
+      screenReady = false;
+      lastAmmoCount = controller.getAmmoCount();
+      lastHealth = controller.getHealth();
       char ammoStr[3];
       sprintf(ammoStr, "%02d", controller.getAmmoCount());
       int16_t pct = 0.50 * min(((float)controller.getHealth() / (float)controller.getMaxHealth()) * 100.00, 100.0);  //max height 64 at 100%
@@ -172,14 +176,14 @@ void updateDisplayStats() {
       // picture loop
       display.firstPage();
       do {
-        display.drawXBMP(18, 54, bullet_width, bullet_height, bullet);
+        //display.drawXBMP(18, 54, bullet_width, bullet_height, bullet);
         display.drawStr180(80, 0, ammoStr);
-        display.drawXBMP(88, 0, health_width, health_height, health);
-        display.drawBox(93, 4, 22, pct);
+        //display.drawXBMP(88, 0, health_width, health_height, health);
+        //display.drawBox(93, 4, 22, pct);
       } while (display.nextPage());
+      screenReady = true;
+      Serial.println(millis() - now);
     }
-    lastAmmoCount = controller.getAmmoCount();
-    lastHealth = controller.getHealth();
   }
 }
 

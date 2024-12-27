@@ -464,7 +464,7 @@ Joystick_::Joystick_(
   _yAxis = 0;
   _zAxis = 0;
   ammoCount = 0;
-  maxHealth = 100;
+  maxHealth = 1000;
   useAmmoCount = false;
   _xAxisRotation = 0;
   _yAxisRotation = 0;

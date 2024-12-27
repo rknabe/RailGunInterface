@@ -89,7 +89,7 @@ private:
   bool autoRecoil = true;
   int16_t ammoCount = 0;
   int16_t health = 0;
-  int16_t maxHealth = 100;
+  int16_t maxHealth = 1000;
   bool useAmmoCount = false;
   uint16_t uniqueId = 0;
   int16_t triggerRepeatRate = 100;
