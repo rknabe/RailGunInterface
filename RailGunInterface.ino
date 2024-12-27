@@ -2,8 +2,12 @@
 #include "InputDebounce.h"
 #include <arduino-timer.h>
 #include "U8glib.h"
+#include "avdweb_AnalogReadFast.h"
 
-U8GLIB_SH1106_128X64 display(U8G_I2C_OPT_DEV_0 | U8G_I2C_OPT_FAST);
+#define OLED_DC       12
+#define OLED_CS       11
+#define OLED_RST      13
+U8GLIB_SH1106_128X64_2X display(OLED_CS, OLED_DC, OLED_RST);
 
 const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -176,10 +180,10 @@ void updateDisplayStats() {
       // picture loop
       display.firstPage();
       do {
-        //display.drawXBMP(18, 54, bullet_width, bullet_height, bullet);
+        display.drawXBMP(18, 54, bullet_width, bullet_height, bullet);
         display.drawStr180(80, 0, ammoStr);
-        //display.drawXBMP(88, 0, health_width, health_height, health);
-        //display.drawBox(93, 4, 22, pct);
+        display.drawXBMP(88, 0, health_width, health_height, health);
+        display.drawBox(93, 4, 22, pct);
       } while (display.nextPage());
       screenReady = true;
       Serial.println(millis() - now);
@@ -188,6 +192,7 @@ void updateDisplayStats() {
 }
 
 void loop() {
+  unsigned long start = micros();
   sendUpdate = false;
   timer.tick();
 
@@ -200,14 +205,14 @@ void loop() {
   btnStart.process(now);
   btnCoin.process(now);
 
-  const int currentXAxisValue = 1024 - analogRead(AXIS_X_PIN);
+  const int currentXAxisValue = 1024 - analogReadFast(AXIS_X_PIN);
   if (abs(currentXAxisValue - lastXAxisValue) > 2) {
     controller.setXAxis(currentXAxisValue);
     lastXAxisValue = currentXAxisValue;
     sendUpdate = true;
   }
 
-  const int currentYAxisValue = 1024 - analogRead(AXIS_Y_PIN);
+  const int currentYAxisValue = 1024 - analogReadFast(AXIS_Y_PIN);
   if (abs(currentYAxisValue - lastYAxisValue) > 2) {
     controller.setYAxis(currentYAxisValue);
     lastYAxisValue = currentYAxisValue;
@@ -219,6 +224,8 @@ void loop() {
   }
 
   updateDisplayStats();
+
+  //Serial.println(micros() - start);
 }
 
 //Serial port - commands and output.
