@@ -4,10 +4,10 @@
 #include "U8glib.h"
 #include "avdweb_AnalogReadFast.h"
 
-#define OLED_CS       11
-#define OLED_DC       12
-#define OLED_RST      13
-U8GLIB_SH1106_128X64_2X display(OLED_CS, OLED_DC, OLED_RST);
+#define OLED_CS 11
+#define OLED_DC 12
+#define OLED_RST 13
+U8GLIB_SSD1309_128X64 display(OLED_CS, OLED_DC, OLED_RST);
 
 const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -173,17 +173,29 @@ void updateDisplayStats() {
       screenReady = false;
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
-      char ammoStr[3];
-      sprintf(ammoStr, "%02d", controller.getAmmoCount());
-      int16_t pct = 0.50 * min(((float)controller.getHealth() / (float)controller.getMaxHealth()) * 100.00, 100.0);  //max height 64 at 100%
-      pct = max(pct, 1);                                                                                             //min of 1
-      // picture loop
+      int8_t pct = round(min(((float)lastHealth / (float)controller.getMaxHealth()) * (float)6.0, 6.0));  //max height 64 at 100%
+      if (lastHealth > 4 && pct == 0) {
+        pct = 1;
+      }
       display.firstPage();
       do {
-        display.drawXBMP(18, 54, bullet_width, bullet_height, bullet);
-        display.drawStr180(80, 0, ammoStr);
-        display.drawXBMP(88, 0, health_width, health_height, health);
-        display.drawBox(93, 4, 22, pct);
+        for (int i = 0; i < pct; i++) {
+          display.setPrintPos(6, 77 - (11 * i));
+          display.print("-");
+        }
+        if (lastAmmoCount > 99) {
+          display.setPrintPos(40, 50);
+          display.setFont(u8g_font_fub35n);
+          display.print(lastAmmoCount);
+          display.setFont(u8g_font_fub49n);
+        } else {
+          if (lastAmmoCount < 10) {
+            display.setPrintPos(70, 60);
+          } else {
+            display.setPrintPos(50, 60);
+          }
+          display.print(lastAmmoCount);
+        }
       } while (display.nextPage());
       screenReady = true;
       Serial.println(millis() - now);
