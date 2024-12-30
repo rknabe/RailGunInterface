@@ -4,8 +4,8 @@
 #include "U8glib.h"
 #include "avdweb_AnalogReadFast.h"
 
-#define OLED_DC       12
 #define OLED_CS       11
+#define OLED_DC       12
 #define OLED_RST      13
 U8GLIB_SH1106_128X64_2X display(OLED_CS, OLED_DC, OLED_RST);
 
