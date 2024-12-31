@@ -41,6 +41,7 @@ int lastYAxisValue = -1;
 unsigned long lastTriggerRepeat = 0;
 int16_t lastAmmoCount = -1;
 int16_t lastHealth = 0;
+int8_t lastHealthPct = 0;
 
 void setup() {
   Serial.begin(SERIAL_BAUDRATE);
@@ -83,7 +84,7 @@ void setup() {
 
   display.firstPage();
   do {
-    display.drawXBMP(32, 20, logo_width, logo_height, logo);
+    display.drawXBMP(34, 18, logo_width, logo_height, logo);
   } while (display.nextPage());
   timer.in(2000, clearDisplay);
 
@@ -169,18 +170,19 @@ bool clearDisplay(void *) {
 
 void updateDisplayStats() {
   if (screenReady) {
-    if (lastAmmoCount != controller.getAmmoCount() || lastHealth != controller.getHealth()) {
-      unsigned long now = millis();
+    int8_t healthPct = round(min(((float)controller.getHealth() / (float)controller.getMaxHealth()) * (float)6.0, 6.0));
+    if (controller.getHealth() > 4 && healthPct == 0) {
+      healthPct = 1;
+    }
+    if (lastAmmoCount != controller.getAmmoCount() || lastHealthPct != healthPct) {
       screenReady = false;
+      unsigned long now = millis();
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
-      int8_t pct = round(min(((float)lastHealth / (float)controller.getMaxHealth()) * (float)6.0, 6.0));  //max height 64 at 100%
-      if (lastHealth > 4 && pct == 0) {
-        pct = 1;
-      }
+      lastHealthPct = healthPct;
       display.firstPage();
       do {
-        for (int i = 0; i < pct; i++) {
+        for (int8_t i = 0; i < healthPct; i++) {
           display.setPrintPos(6, 77 - (11 * i));
           display.print("-");
         }
@@ -191,21 +193,22 @@ void updateDisplayStats() {
           display.setFont(u8g_font_fub49n);
         } else {
           if (lastAmmoCount < 10) {
-            display.setPrintPos(70, 60);
+            display.setPrintPos(70, 63);
           } else {
-            display.setPrintPos(50, 60);
+            display.setPrintPos(50, 63);
           }
           display.print(lastAmmoCount);
         }
+        display.drawXBMP(67, 0, bullet_width, bullet_height, bullet);
       } while (display.nextPage());
-      screenReady = true;
       Serial.println(millis() - now);
+      screenReady = true;
     }
-  }
+  }  
 }
 
 void loop() {
-  unsigned long start = micros();
+  //unsigned long start = micros();
   sendUpdate = false;
   timer.tick();
 
