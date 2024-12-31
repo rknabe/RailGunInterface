@@ -3,6 +3,7 @@
 #include <arduino-timer.h>
 #include "U8glib.h"
 #include "avdweb_AnalogReadFast.h"
+#include <digitalWriteFast.h>
 
 #define OLED_CS 11
 #define OLED_DC 12
@@ -65,10 +66,10 @@ void setup() {
   btnCoin.setup(BTN_COIN, BUTTON_DEBOUNCE_DELAY, InputDebounce::PIM_INT_PULL_UP_RES);
 
   pinMode(RECOIL_RELAY_PIN, OUTPUT);
-  digitalWrite(RECOIL_RELAY_PIN, LOW);
+  digitalWriteFast(RECOIL_RELAY_PIN, LOW);
 
   pinMode(LIGHT_RELAY_PIN, OUTPUT);
-  digitalWrite(LIGHT_RELAY_PIN, LOW);
+  digitalWriteFast(LIGHT_RELAY_PIN, LOW);
 
   cli();
   TCCR3A = 0;  //set TCCR1A 0
@@ -109,9 +110,9 @@ bool setRecoilReleased(void *) {
 
 bool releaseFire(void *) {
   if (isFiring) {
-    digitalWrite(RECOIL_RELAY_PIN, LOW);
+    digitalWriteFast(RECOIL_RELAY_PIN, LOW);
     controller.setButton(getButtonNumFromPin(BTN_TRIGGER), LOW);
-    digitalWrite(LIGHT_RELAY_PIN, LOW);
+    digitalWriteFast(LIGHT_RELAY_PIN, LOW);
     sendUpdate = true;
     timer.in(RECOIL_MS, setRecoilReleased);
   }
@@ -122,11 +123,11 @@ void pressFire(bool doRecoil, bool setButton) {
   if (!isFiring) {
     isFiring = true;
     if (doRecoil && controller.hasAmmo()) {
-      digitalWrite(RECOIL_RELAY_PIN, HIGH);
+      digitalWriteFast(RECOIL_RELAY_PIN, HIGH);
     }
     if (setButton) {
       controller.setButton(getButtonNumFromPin(BTN_TRIGGER), HIGH);
-      digitalWrite(LIGHT_RELAY_PIN, HIGH);
+      digitalWriteFast(LIGHT_RELAY_PIN, HIGH);
     }
     sendUpdate = true;
     timer.in(RECOIL_RELEASE_MS, releaseFire);
