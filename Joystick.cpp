@@ -633,6 +633,9 @@ void Joystick_::end() {
 
 void Joystick_::setAmmoCount(int16_t count) {
   ammoCount = count;
+  if (ammoCount < 0) {
+    ammoCount = 0;
+  }
   //if (ammoCount > 0) {
   //  useAmmoCount = true;
   //}

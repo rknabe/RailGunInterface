@@ -88,7 +88,7 @@ void setup() {
   } while (display.nextPage());
   timer.in(2000, clearDisplay);
 
-  display.setFont(u8g_font_fub49n);
+  display.setFont(u8g_font_fub35n);
 }
 
 ISR(TIMER3_COMPA_vect) {
@@ -132,6 +132,7 @@ void pressFire(bool doRecoil, bool setButton) {
     }
     sendUpdate = true;
     timer.in(RECOIL_RELEASE_MS, releaseFire);
+    //controller.setAmmoCount(controller.getAmmoCount() - 1);
   }
 }
 
@@ -170,45 +171,43 @@ bool clearDisplay(void *) {
 
 void updateDisplayStats() {
   if (screenReady) {
-    int8_t healthPct = round(min(((float)controller.getHealth() / (float)controller.getMaxHealth()) * (float)6.0, 6.0));
+    int8_t healthPct = round(min(((float)controller.getHealth() / (float)controller.getMaxHealth()) * (float)10.0, 10.0));
     if (controller.getHealth() > 4 && healthPct == 0) {
       healthPct = 1;
     }
     if (lastAmmoCount != controller.getAmmoCount() || lastHealthPct != healthPct) {
       screenReady = false;
-      unsigned long now = millis();
+      //unsigned long now = millis();
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
       lastHealthPct = healthPct;
       display.firstPage();
       do {
         for (int8_t i = 0; i < healthPct; i++) {
-          display.setPrintPos(6, 77 - (11 * i));
+          display.setPrintPos(14, 75 - (7 * i));
           display.print("-");
         }
         if (lastAmmoCount > 99) {
-          display.setPrintPos(40, 50);
-          display.setFont(u8g_font_fub35n);
+          display.setPrintPos(40, 57);
           display.print(lastAmmoCount);
-          display.setFont(u8g_font_fub49n);
         } else {
           if (lastAmmoCount < 10) {
-            display.setPrintPos(70, 63);
+            display.setPrintPos(70, 57);
           } else {
-            display.setPrintPos(50, 63);
+            display.setPrintPos(60, 57);
           }
           display.print(lastAmmoCount);
         }
-        display.drawXBMP(67, 0, bullet_width, bullet_height, bullet);
+        display.drawXBMP(62, 0, bullet_width, bullet_height, bullet);
       } while (display.nextPage());
-      Serial.println(millis() - now);
+      //Serial.println(millis() - now);
       screenReady = true;
     }
-  }  
+  }
 }
 
 void loop() {
-  //unsigned long start = micros();
+  //unsigned long stop, start = micros();
   sendUpdate = false;
   timer.tick();
 
@@ -240,8 +239,6 @@ void loop() {
   }
 
   updateDisplayStats();
-
-  //Serial.println(micros() - start);
 }
 
 //Serial port - commands and output.
