@@ -181,24 +181,22 @@ void updateDisplayStats() {
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
       lastHealthPct = healthPct;
+      char ammoStr[3];
+      sprintf(ammoStr, "%3d", lastAmmoCount);
+      uint8_t x = 60;
+      if (lastAmmoCount > 99) {
+        x = 40;
+      } else if (lastAmmoCount < 10) {
+        x = 70;
+      }
+      int8_t i;
       display.firstPage();
       do {
-        for (int8_t i = 0; i < healthPct; i++) {
-          display.setPrintPos(14, 72 - (6 * i));
-          display.print("-");
+        for (i = 0; i < healthPct; i++) {
+          display.drawStr(14, 72 - (6 * i), "-");
         }
-        if (lastAmmoCount > 99) {
-          display.setPrintPos(40, 57);
-          display.print(lastAmmoCount);
-        } else {
-          if (lastAmmoCount < 10) {
-            display.setPrintPos(70, 57);
-          } else {
-            display.setPrintPos(60, 57);
-          }
-          display.print(lastAmmoCount);
-        }
-        display.drawXBMP(62, 4, bullet_width, bullet_height, bullet);
+        display.drawStr(x, 57, ammoStr);
+        //display.drawXBMP(62, 4, bullet_width, bullet_height, bullet);
       } while (display.nextPage());
       //Serial.println(millis() - now);
       screenReady = true;
