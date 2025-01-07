@@ -88,7 +88,7 @@ void setup() {
   } while (display.nextPage());
   timer.in(2000, clearDisplay);
 
-  display.setFont(u8g_font_fub35n);
+  display.setFont(u8g_font_fub30n);
 }
 
 ISR(TIMER3_COMPA_vect) {
@@ -184,7 +184,7 @@ void updateDisplayStats() {
       display.firstPage();
       do {
         for (int8_t i = 0; i < healthPct; i++) {
-          display.setPrintPos(14, 75 - (7 * i));
+          display.setPrintPos(14, 72 - (6 * i));
           display.print("-");
         }
         if (lastAmmoCount > 99) {
@@ -198,7 +198,7 @@ void updateDisplayStats() {
           }
           display.print(lastAmmoCount);
         }
-        display.drawXBMP(62, 0, bullet_width, bullet_height, bullet);
+        display.drawXBMP(62, 4, bullet_width, bullet_height, bullet);
       } while (display.nextPage());
       //Serial.println(millis() - now);
       screenReady = true;
