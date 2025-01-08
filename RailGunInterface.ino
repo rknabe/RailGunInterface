@@ -132,7 +132,7 @@ void pressFire(bool doRecoil, bool setButton) {
     }
     sendUpdate = true;
     timer.in(RECOIL_RELEASE_MS, releaseFire);
-    //controller.setAmmoCount(controller.getAmmoCount() - 1);
+    controller.setAmmoCount(controller.getAmmoCount() - 1);
   }
 }
 
@@ -177,19 +177,19 @@ void updateDisplayStats() {
     }
     if (lastAmmoCount != controller.getAmmoCount() || lastHealthPct != healthPct) {
       screenReady = false;
-      unsigned long now = millis();
+      //unsigned long now = millis();
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
       lastHealthPct = healthPct;
-      char ammoStr[3];
-      sprintf(ammoStr, "%3d", lastAmmoCount);
+      char ammoStr[4];
+      itoa(lastAmmoCount, ammoStr, 10);
       uint8_t x = 60;
       if (lastAmmoCount > 99) {
         x = 40;
       } else if (lastAmmoCount < 10) {
         x = 70;
       }
-      int8_t i;
+      uint8_t i;
       display.firstPage();
       do {
         for (i = 0; i < healthPct; i++) {
@@ -198,7 +198,7 @@ void updateDisplayStats() {
         display.drawStr(x, 57, ammoStr);
         display.drawXBMP(62, 4, bullet_width, bullet_height, bullet);
       } while (display.nextPage());
-      Serial.println(millis() - now);
+      //Serial.println(millis() - now);
       screenReady = true;
     }
   }
@@ -219,21 +219,17 @@ void loop() {
   btnCoin.process(now);
 
   const int currentXAxisValue = 1024 - analogReadFast(AXIS_X_PIN);
-  if (abs(currentXAxisValue - lastXAxisValue) > 2) {
-    Serial.print("xDiff:");
-    Serial.println(abs(currentXAxisValue - lastXAxisValue));
-    controller.setXAxis(currentXAxisValue);
+  if (abs(currentXAxisValue - lastXAxisValue) > 4) {
     lastXAxisValue = currentXAxisValue;
-    //sendUpdate = true;
+    controller.setXAxis(currentXAxisValue);
+    sendUpdate = true;
   }
 
   const int currentYAxisValue = 1024 - analogReadFast(AXIS_Y_PIN);
-  if (abs(currentYAxisValue - lastYAxisValue) > 2) {
-    Serial.print("yDiff:");
-    Serial.println(abs(currentYAxisValue - lastYAxisValue));
-    controller.setYAxis(currentYAxisValue);
+  if (abs(currentYAxisValue - lastYAxisValue) > 4) {
     lastYAxisValue = currentYAxisValue;
-    //sendUpdate = true;
+    controller.setYAxis(currentYAxisValue);
+    sendUpdate = true;
   }
 
   updateDisplayStats();
@@ -241,10 +237,7 @@ void loop() {
   if (sendUpdate) {
     sendUpdate = false;
     controller.sendState();
-    Serial.println(millis() - start);
   }
-
-  //delay(5);
 }
 
 //Serial port - commands and output.
