@@ -8,7 +8,7 @@
 #define OLED_CS 11
 #define OLED_DC 12
 #define OLED_RST 13
-U8GLIB_SSD1309_128X64 display(OLED_CS, OLED_DC, OLED_RST);
+U8GLIB_SH1106_128X64_2X display(OLED_CS, OLED_DC, OLED_RST);
 
 const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -88,7 +88,7 @@ void setup() {
   } while (display.nextPage());
   timer.in(2000, clearDisplay);
 
-  display.setFont(u8g_font_fub30n);
+  display.setFont(u8g_font_helvB24n);
 }
 
 ISR(TIMER3_COMPA_vect) {
@@ -177,7 +177,7 @@ void updateDisplayStats() {
     }
     if (lastAmmoCount != controller.getAmmoCount() || lastHealthPct != healthPct) {
       screenReady = false;
-      //unsigned long now = millis();
+      unsigned long now = millis();
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
       lastHealthPct = healthPct;
@@ -196,16 +196,16 @@ void updateDisplayStats() {
           display.drawStr(14, 72 - (6 * i), "-");
         }
         display.drawStr(x, 57, ammoStr);
-        //display.drawXBMP(62, 4, bullet_width, bullet_height, bullet);
+        display.drawXBMP(62, 4, bullet_width, bullet_height, bullet);
       } while (display.nextPage());
-      //Serial.println(millis() - now);
+      Serial.println(millis() - now);
       screenReady = true;
     }
   }
 }
 
 void loop() {
-  //unsigned long stop, start = micros();
+  unsigned long start = millis();
   sendUpdate = false;
   timer.tick();
 
@@ -220,23 +220,31 @@ void loop() {
 
   const int currentXAxisValue = 1024 - analogReadFast(AXIS_X_PIN);
   if (abs(currentXAxisValue - lastXAxisValue) > 2) {
+    Serial.print("xDiff:");
+    Serial.println(abs(currentXAxisValue - lastXAxisValue));
     controller.setXAxis(currentXAxisValue);
     lastXAxisValue = currentXAxisValue;
-    sendUpdate = true;
+    //sendUpdate = true;
   }
 
   const int currentYAxisValue = 1024 - analogReadFast(AXIS_Y_PIN);
   if (abs(currentYAxisValue - lastYAxisValue) > 2) {
+    Serial.print("yDiff:");
+    Serial.println(abs(currentYAxisValue - lastYAxisValue));
     controller.setYAxis(currentYAxisValue);
     lastYAxisValue = currentYAxisValue;
-    sendUpdate = true;
-  }
-
-  if (sendUpdate) {
-    controller.sendState();
+    //sendUpdate = true;
   }
 
   updateDisplayStats();
+
+  if (sendUpdate) {
+    sendUpdate = false;
+    controller.sendState();
+    Serial.println(millis() - start);
+  }
+
+  //delay(5);
 }
 
 //Serial port - commands and output.
@@ -254,7 +262,7 @@ void processSerial() {
       if (arg1 == 1) {
         pressFire(true, false);
       }
-    } else if (strcmp_P(cmd, PSTR("setammocount")) == 0) {
+    } else if (strcmp_P(cmd, PSTR("setammocount")) == 0 || strcmp_P(cmd, PSTR("setammo")) == 0) {
       controller.setAmmoCount(arg1);
       sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("useammocount")) == 0) {
