@@ -132,7 +132,7 @@ void pressFire(bool doRecoil, bool setButton) {
     }
     sendUpdate = true;
     timer.in(RECOIL_RELEASE_MS, releaseFire);
-    controller.setAmmoCount(controller.getAmmoCount() - 1);
+    //controller.setAmmoCount(controller.getAmmoCount() - 1);
   }
 }
 
