@@ -181,8 +181,8 @@ void updateDisplayStats() {
       lastAmmoCount = controller.getAmmoCount();
       lastHealth = controller.getHealth();
       lastHealthPct = healthPct;
-      char ammoStr[4];
-      itoa(lastAmmoCount, ammoStr, 10);
+      char ammoStr[3];
+      sprintf(ammoStr, "%3d", lastAmmoCount);
       uint8_t x = 60;
       if (lastAmmoCount > 99) {
         x = 40;
@@ -257,16 +257,16 @@ void processSerial() {
       }
     } else if (strcmp_P(cmd, PSTR("setammocount")) == 0 || strcmp_P(cmd, PSTR("setammo")) == 0) {
       controller.setAmmoCount(arg1);
-      sendUpdate = true;
+      //sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("useammocount")) == 0) {
       controller.setUseAmmoCount(arg1 > 0);
-      sendUpdate = true;
+      //sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("sethealth")) == 0) {
       controller.setHealth(arg1);
-      sendUpdate = true;
+      //sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("setmaxhealth")) == 0) {
       controller.setMaxHealth(arg1);
-      sendUpdate = true;
+      //sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("setuniqueid")) == 0) {
       //this help match the hid device to com port from host
       controller.setUniqueId(arg1);
