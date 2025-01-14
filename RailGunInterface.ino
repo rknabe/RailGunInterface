@@ -1,14 +1,15 @@
 #include "Joystick.h"
 #include "InputDebounce.h"
 #include <arduino-timer.h>
-#include "U8glib.h"
 #include "avdweb_AnalogReadFast.h"
 #include <digitalWriteFast.h>
 
+/*
+#include "U8glib.h"
 #define OLED_CS 11
 #define OLED_DC 12
 #define OLED_RST 13
-U8GLIB_SH1106_128X64_2X display(OLED_CS, OLED_DC, OLED_RST);
+U8GLIB_SH1106_128X64_2X display(OLED_CS, OLED_DC, OLED_RST);*/
 
 const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
@@ -35,7 +36,7 @@ const int buttonPins[buttonCount] = {
 
 bool isFiring = false;
 bool sendUpdate = false;
-boolean screenReady = false;
+//boolean screenReady = false;
 int lastXAxisValue = -1;
 int lastYAxisValue = -1;
 unsigned long lastTriggerRepeat = 0;
@@ -82,13 +83,14 @@ void setup() {
   TIMSK3 |= (1 << OCIE3A);
   sei();
 
+  /*
   display.firstPage();
   do {
     display.drawXBMP(34, 18, logo_width, logo_height, logo);
   } while (display.nextPage());
   timer.in(2000, clearDisplay);
 
-  display.setFont(u8g_font_helvB24n);
+  display.setFont(u8g_font_helvB24n);*/
 }
 
 ISR(TIMER3_COMPA_vect) {
@@ -164,6 +166,7 @@ void pressedDurationCallback(uint8_t pinIn, unsigned long duration) {
 void releasedDurationCallback(uint8_t pinIn, unsigned long duration) {
 }
 
+/*
 bool clearDisplay(void *) {
   screenReady = true;
   return true;
@@ -202,7 +205,7 @@ void updateDisplayStats() {
       screenReady = true;
     }
   }
-}
+}*/
 
 void loop() {
   unsigned long start = millis();
@@ -232,7 +235,7 @@ void loop() {
     sendUpdate = true;
   }
 
-  updateDisplayStats();
+  //updateDisplayStats();
 
   if (sendUpdate) {
     sendUpdate = false;
