@@ -496,12 +496,24 @@ bool Joystick_::getAutoRecoil() {
   return autoRecoil;
 }
 
+void Joystick_::setAutoRecoil(bool newValue) {
+  autoRecoil = newValue;
+}
+
 uint16_t Joystick_::getTriggerRepeatRate() {
   return triggerRepeatRate;
 }
 
+void Joystick_::setTriggerRepeatRate(uint16_t value) {
+  triggerRepeatRate = value;
+}
+
 uint16_t Joystick_::getTriggerHoldTime() {
   return triggerHoldTime;
+}
+
+void Joystick_::setTriggerHoldTime(uint16_t value) {
+  triggerHoldTime = value;
 }
 
 void Joystick_::sendGuiReport(void *data) {
@@ -846,8 +858,8 @@ void Joystick_::sendState() {
   index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS, _yAxis, _yAxisMinimum, _yAxisMaximum, &(data[index]));
   //index += buildAndSet16BitValue(true, ammoCount, 0, 32767, 0, 32767, (data[index]));
 
-  index += set16BitValue(ammoCount, &(data[index]));
-  index += setBoolValue(useAmmoCount, &(data[index]));
+  //index += set16BitValue(ammoCount, &(data[index]));
+  //index += setBoolValue(useAmmoCount, &(data[index]));
 
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS, _zAxis, _zAxisMinimum, _zAxisMaximum, &(data[index]));
   //index += buildAndSetAxisValue(_includeAxisFlags & JOYSTICK_INCLUDE_RX_AXIS, _xAxisRotation, _rxAxisMinimum, _rxAxisMaximum, &(data[index]));

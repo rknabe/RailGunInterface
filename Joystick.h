@@ -229,8 +229,11 @@ public:
   void loadDefaultSettings();
   void loadSettings(Settings settings);
   bool getAutoRecoil();
+  void setAutoRecoil(bool value);
   uint16_t getTriggerRepeatRate();
+  void setTriggerRepeatRate(uint16_t value);
   uint16_t getTriggerHoldTime();
+  void setTriggerHoldTime(uint16_t value);
   int16_t getAmmoCount();
   void setAmmoCount(int16_t value);
   int16_t getHealth();

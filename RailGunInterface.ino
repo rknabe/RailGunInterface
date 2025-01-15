@@ -15,7 +15,7 @@ const uint8_t buttonCount = 5;
 Joystick_ controller(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_GAMEPAD, buttonCount,
                      0, true, true, false,
                      false, false, false,
-                     true, false, false,
+                     false, false, false,
                      false, false);
 
 auto timer = timer_create_default();  // create a timer with default settings
@@ -208,7 +208,6 @@ void updateDisplayStats() {
 }*/
 
 void loop() {
-  unsigned long start = millis();
   sendUpdate = false;
   timer.tick();
 
@@ -247,7 +246,7 @@ void loop() {
 void processSerial() {
 
   if (Serial.available()) {
-    char cmd[16];
+    char cmd[32];
     int16_t arg1 = -32768, arg2 = -32768, arg3 = -32768;
     String line = Serial.readStringUntil('!');
     Serial.readBytes(&cmd[0], 1);  //read the ! or it will loop again
@@ -269,7 +268,16 @@ void processSerial() {
       //sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("setmaxhealth")) == 0) {
       controller.setMaxHealth(arg1);
-      //sendUpdate = true;
+      sendUpdate = true;
+    } else if (strcmp_P(cmd, PSTR("settriggerrepeatrate")) == 0) {
+      controller.setTriggerRepeatRate(arg1);
+      sendUpdate = true;
+    } else if (strcmp_P(cmd, PSTR("settriggerholdtime")) == 0) {
+      controller.setTriggerHoldTime(arg1);
+      sendUpdate = true;
+    } else if (strcmp_P(cmd, PSTR("setautorecoil")) == 0) {
+      controller.setAutoRecoil(arg1 > 0);
+      sendUpdate = true;
     } else if (strcmp_P(cmd, PSTR("setuniqueid")) == 0) {
       //this help match the hid device to com port from host
       controller.setUniqueId(arg1);
