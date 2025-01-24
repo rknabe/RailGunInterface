@@ -1,4 +1,5 @@
 #include "Settings.h"
+#include <EEPROM.h>
 
 uint8_t SettingsEEPROM::calcChecksum() {
   uint8_t i, checksum;

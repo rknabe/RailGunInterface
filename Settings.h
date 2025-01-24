@@ -2,7 +2,6 @@
 #define SETTINGS_h
 
 #include <Arduino.h>
-#include <EEPROM.h>
 #include "PIDReportType.h"
 
 #define JOYSTICK_DEFAULT_AXIS_MINIMUM 0
