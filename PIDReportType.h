@@ -33,7 +33,7 @@
 #define SIZE_EFFECT sizeof(TEffectState)
 #define MEMORY_SIZE (uint16_t)(MAX_EFFECTS * SIZE_EFFECT)
 #define TO_LT_END_16(x) ((x << 8) & 0xFF00) | ((x >> 8) & 0x00FF)
-#define FIRMWARE_VERSION "1.0.0"
+#define FIRMWARE_VERSION "1.0.1"
 #define FIRMWARE_TYPE "RKADE-GUN"
 
 ////refer to PIDDescriptor.h
