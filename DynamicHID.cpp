@@ -53,7 +53,6 @@ int DynamicHID_::getDescriptor(USBSetup& setup) {
 
   int total = 0;
   DynamicHIDSubDescriptor* node;
-
   for (node = rootNode; node; node = node->next) {
     int res = USB_SendControl(0, node->data, node->length);
     if (res == -1)
@@ -112,9 +111,9 @@ int DynamicHID_::RecvData(byte* data) {
 
 void DynamicHID_::RecvfromUsb() {
   if (usb_Available() > 0) {
-    int len = USB_Recv(PID_ENDPOINT_OUT, &out_ffbdata, 64);
+    uint16_t len = USB_Recv(PID_ENDPOINT_OUT, &out_ffbdata, 64);
     if (len >= 0) {
-      pidReportHandler.UppackUsbData(out_ffbdata);
+      pidReportHandler.UppackUsbData(out_ffbdata, len);
     }
   }
 }
@@ -122,39 +121,30 @@ void DynamicHID_::RecvfromUsb() {
 bool DynamicHID_::GetReport(USBSetup& setup) {
   uint8_t report_id = setup.wValueL;
   uint8_t report_type = setup.wValueH;
-
   if (report_type == DYNAMIC_HID_REPORT_TYPE_INPUT) {
     //        /* Create the next HID report to send to the host */
     //        GetNextReport(0xFF, &JoystickReportData);
     //        /* Write the report data to the control endpoint */
     //        USB_SendControl(TRANSFER_RELEASE, &JoystickReportData, sizeof(JoystickReportData));
   }
-  if (report_type == DYNAMIC_HID_REPORT_TYPE_OUTPUT) {
-  }
+  if (report_type == DYNAMIC_HID_REPORT_TYPE_OUTPUT) {}
   if (report_type == DYNAMIC_HID_REPORT_TYPE_FEATURE) {
     if ((report_id == 6))  // && (gNewEffectBlockLoad.reportId==6))
     {
-      //_delay_us(500);
-      //USB_SendControl(TRANSFER_RELEASE, pidReportHandler.getPIDBlockLoad(), sizeof(USB_FFBReport_PIDBlockLoad_Feature_Data_t));
-      //pidReportHandler.pidBlockLoad.reportId = 0;
+      _delay_us(500);
+      USB_SendControl(TRANSFER_RELEASE, pidReportHandler.getPIDBlockLoad(), sizeof(USB_FFBReport_PIDBlockLoad_Feature_Data_t));
+      pidReportHandler.pidBlockLoad.reportId = 0;
       return (true);
     }
     if (report_id == 7) {
-     // USB_FFBReport_PIDPool_Feature_Data_t ans;
-     // ans.reportId = report_id;
-    //  ans.ramPoolSize = 0xffff;
-     // ans.maxSimultaneousEffects = MAX_EFFECTS;
-    //  ans.memoryManagement = 3;
-     // USB_SendControl(TRANSFER_RELEASE, &ans, sizeof(USB_FFBReport_PIDPool_Feature_Data_t));
+      USB_FFBReport_PIDPool_Feature_Data_t ans;
+      ans.reportId = report_id;
+      ans.ramPoolSize = 0xffff;
+      ans.maxSimultaneousEffects = MAX_EFFECTS;
+      ans.memoryManagement = 3;
+      USB_SendControl(TRANSFER_RELEASE, &ans, sizeof(USB_FFBReport_PIDPool_Feature_Data_t));
       return (true);
     }
-    /*if (report_id == 7) {
-      Serial.println("feature");
-      char deviceType[10];
-      strcpy_P(&deviceType[1], PSTR(FIRMWARE_TYPE));
-      USB_SendControl(TRANSFER_RELEASE, &deviceType, 10);
-      return (true);
-    }*/
   }
   return (false);
 }
@@ -164,7 +154,6 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
   uint8_t report_type = setup.wValueH;
   uint16_t length = setup.wLength;
   uint8_t data[10];
-
   if (report_type == DYNAMIC_HID_REPORT_TYPE_FEATURE) {
     if (length == 0) {
       USB_RecvControl(&data, length);
@@ -173,11 +162,11 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
       return true;
     }
     if (report_id == 5) {
-      //USB_FFBReport_CreateNewEffect_Feature_Data_t ans;
-      //USB_RecvControl(&ans, sizeof(USB_FFBReport_CreateNewEffect_Feature_Data_t));
-      //pidReportHandler.CreateNewEffect(&ans);
+      USB_FFBReport_CreateNewEffect_Feature_Data_t ans;
+      USB_RecvControl(&ans, sizeof(USB_FFBReport_CreateNewEffect_Feature_Data_t));
+      pidReportHandler.CreateNewEffect(&ans);
     }
-    return true;
+    return (true);
   }
   if (setup.wValueH == DYNAMIC_HID_REPORT_TYPE_INPUT) {
     /*if(length == sizeof(JoystickReportData))
@@ -186,7 +175,6 @@ bool DynamicHID_::SetReport(USBSetup& setup) {
 		  return true;
 		  }*/
   }
-  return false;
 }
 
 bool DynamicHID_::setup(USBSetup& setup) {
